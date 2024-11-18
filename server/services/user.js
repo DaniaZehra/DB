@@ -4,11 +4,6 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 class User{
-    static async create(id,username, password,email){
-        const saltRounds = 10;
-        const hashedPassword = await bcrypt.hash(password, saltRounds);
-        return await db.query('INSERT INTO users (id,username, password,email) VALUES (?, ?, ?, ?)', [id,username, hashedPassword,email]);
-    };
     static findbyUsername(username){
         return db.query('Select * from users where username = ?', [username]);
     }
