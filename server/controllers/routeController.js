@@ -1,4 +1,4 @@
-import { TransportRoute } from '../services/routes.js';
+import  TransportRoute  from '../services/routes.js';
 
 export const createRoutes = async (req, res) => {
     const { origin, destination, distance } = req.query;
@@ -23,5 +23,3 @@ export const getAllRoutes = async(req,res) =>{
         res.status(500).json({ error: 'Internal server error' });
     }
 }
-
-export default { transportRoutes };
