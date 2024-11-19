@@ -1,16 +1,15 @@
-import { searchRoutes } from '../models/search.js';
+import { searchRoutesService } from '../services/Search.js';
 
-const searchRoutes = async(req,res)=>{
-    const {input} = req.query;
-    try{
-        const result = await createPool.querty("select * from search where name Like ? or origin LIKE ? or destination LIKE ?",[`%${input}%`,`%${input}%`,`%${input}%`]);
-        res.json(result);
-
-    }catch(error){
-        console.error('Error searching:', error);
-        res.status(500).json({error: 'Internal server error'});
+export const searchRoutes = async (req, res) => {
+    const { input } = req.query;
+    
+    try {
+        const result = await searchRoutesService(input);
+        res.json({ message: "Search route is working" });
+    } catch (error) {
+        console.error('Error in controller:', error);
+        res.status(500).json({ error: 'Internal server error' });
     }
-    res.json(result);
-}
+};
 
-module.exports ={searchRoutes}
+

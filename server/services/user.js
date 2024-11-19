@@ -1,11 +1,10 @@
 import db from '../config/database.js';
-import bcrypt from 'bcrypt';
 import dotenv from 'dotenv';
 dotenv.config();
 
 class User{
     static findbyUsername(username){
-        return db.query('Select * from users where username = ?', [username]);
+        return db.query('Select * from customers where username = ?', [username]);
     }
     static async saveRefreshToken(userId, refreshToken){
         return await db.query('UPDATE refresh_tokens SET token = ? WHERE userId = ?', [refreshToken, userId]);

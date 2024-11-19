@@ -11,3 +11,4 @@ class TransportRoute {
         return await db.query("INSERT INTO routes (origin, destination, distance) Values(?,?,?)",[origin, destination, distance]);
     }
 }
+export default TransportRoute;
