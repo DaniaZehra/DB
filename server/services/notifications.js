@@ -6,7 +6,10 @@ class Notification {
     // Fetch all alerts
     async getAlerts() {
         try {
-            const alerts = await db.awaitQuery("SELECT * FROM Notifications");
+            const alerts = await db.query("SELECT * FROM Notifications");
+            if(!alerts || alerts.length==0){
+                throw new Error('no alerts');
+            }
             return alerts;
         } catch (error) {
             throw new Error(`Error fetching alerts: ${error.message}`);

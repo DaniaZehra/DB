@@ -7,7 +7,7 @@ import Notification from './notifications.js';
 const weatherService = new Notification();
 
 const API_KEY = process.env.OPENWEATHER_API_KEY;
-const CITY = 'your_city';
+const CITY = 'Karachi';
 const BASE_URL = 'https://api.openweathermap.org/data/2.5/weather';
 
 class WeatherApiService {

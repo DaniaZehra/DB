@@ -7,9 +7,27 @@ import authRoutes from './routes/authRoutes.js';
 import authMiddleware from './middleware/authmiddleware.js';
 import searchRoutes from './routes/searchRoutes.js'
 import routeRoutes from './routes/routeRoutes.js';
+import WeatherApiService from './services/notificationsWeather.js';
 
 import dotenv from 'dotenv';
 dotenv.config();
+
+WeatherApiService.checkAndCreateAlert = async () => {
+  console.log('Weather Alert Service Called');
+};
+
+// // Test function
+// async function testStartWeatherAlertScheduler() {
+//   console.log('Starting Scheduler Test...');
+//   startWeatherAlertScheduler();
+
+//   // Allow some time for the scheduler to trigger the service
+//   await new Promise((resolve) => setTimeout(resolve, 2000));
+
+//   console.log('If you see "Weather Alert Service Called" in the output, the test passed.');
+// }
+
+// testStartWeatherAlertScheduler();
 
 const app = express();
 const server = createServer(app);
@@ -22,6 +40,7 @@ app.use('/routes', routeRoutes);
 app.use('/api/weather', NotificationRoutes);
 
 startWeatherAlertScheduler();
+
 
 io.on('connection', (socket) => {
   console.log('User connected');

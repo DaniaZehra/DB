@@ -24,6 +24,8 @@ class Customer extends User{
     static async BookCourier(customer_id, courier_name){
         return await db.query('INSERT INTO couriers (customer_id, courier_name) values (?,?)',[customer_id, courier_name]);
     }
+    
+
 }
 
 export default Customer;
