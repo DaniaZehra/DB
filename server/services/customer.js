@@ -6,18 +6,17 @@ dotenv.config();
 
 class Customer extends User{
     static async findbyusername(username){
-        const rows = await db.query('SELECT * from customers where username = ?', username);
+        const rows = await db.query('SELECT * from customer where username = ?', username);
         return rows;
     }
-    static async create(data){
-        const {id, username, first_name, last_name, phone_number, password,email} = data;
+    static async create(id, username, first_name, last_name, phone_number, password,email){
         const saltRounds = parseInt(process.env.SALT_ROUNDS);
         const hashedPassword = await bcrypt.hash(password, saltRounds);
-        return await db.query('INSERT INTO customers (id,username,first_name, last_name, phone_number, password,cust_email) VALUES (?, ?, ?, ?)', 
+        return await db.query('INSERT INTO customer (cust_id,username,first_name, last_name, phone_number, hashedPassword,cust_email) VALUES (?, ?, ?, ?,?,?,?)', 
             [id,username,first_name,last_name,phone_number, hashedPassword,email]);
     };
     static async saveRefreshToken(Id, refreshToken, type){
-        await db.query("replace into refresh_tokens (userId, userType, token) values (?,?,?)",
+        await db.query("replace into usertoken (user_id, user_type, token) values (?,?,?)",
             [Id, type, refreshToken]
         );
     }

@@ -13,7 +13,8 @@ export const login = async (req,res) => {
     }
 
     try{
-        let [user] = await Customer.findbyusername(username);
+        let userType;
+        const [user] = (await Customer.findbyusername(username))[0];
         userType = 'customer';
 
         if(!user||user.length==0){
@@ -23,7 +24,11 @@ export const login = async (req,res) => {
         if(!user||user.length==0){
             return res.status(401).json({message: 'Username not found'});
         }
-        const isValidPassword = await bcrypt.compare(password, user.password);
+        console.log(user);
+        console.log('Received password:', password);
+        console.log('Stored hashed password:', user.hashedPassword);
+
+        const isValidPassword = await bcrypt.compare(password, user.hashedPassword);
         if (!isValidPassword) {
             return res.status(401).json({ message: 'Invalid username or password' });
         }
@@ -40,9 +45,9 @@ export const login = async (req,res) => {
         );
 
         if (userType === 'customer') {
-            await Customer.saveRefreshToken(user.id, refreshToken);
+            await Customer.saveRefreshToken(user.cust_id, refreshToken, 'customer');
         } else {
-            await Transporter.saveRefreshToken(user.id, refreshToken);
+            await Transporter.saveRefreshToken(user.transporter_id, refreshToken,  'transporter');
         }
 
         res.json({ accessToken, refreshToken, userType });

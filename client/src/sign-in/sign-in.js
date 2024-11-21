@@ -1,10 +1,16 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
+import {useState} from 'react';
 import { Container, FloatingLabel, Row} from 'react-bootstrap';
 import './signin.css';
 
 function SignIn() {
+    const  [inputValue, setInputValue] =  useState('');
+
+    const  handleChange = (event) => {
+        setInputValue(event.target.value);
+    };
     return (
         <div className='form-wrapper'>
             <Form>
@@ -14,7 +20,7 @@ function SignIn() {
                 <Container fluid>
                     <Row>
                         <FloatingLabel controlId='username' label = 'Username'>
-                            <Form.Control type='text' placeholder='username'/>
+                            <Form.Control type='text' placeholder='username' value={inputValue} onChange={handleChange}/>
                         </FloatingLabel>
                     </Row>
                     <Row>
