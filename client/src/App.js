@@ -1,9 +1,9 @@
-import SignIn from './sign-in/sign-in';
+import Dashboard from './transporter/dashboard.js';
 import './App.css';
 
 function App() {
   return (
-    <SignIn></SignIn>
+    <Dashboard></Dashboard>
   );
 }
 
