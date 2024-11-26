@@ -1,10 +1,9 @@
-import NavigationAppBar from './components/SearchAppBar';
-import MapWithSearch from './components/MapsTest';
+import SignUpCustomer from './sign-up/customer';
 import './App.css';
 
 function App() {
   return (
-    <MapWithSearch></MapWithSearch>
+    <SignUpCustomer></SignUpCustomer>
   );
 }
 

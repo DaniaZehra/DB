@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import {createServer} from 'http';
 import {Server} from 'socket.io';
 import cookieParser from 'cookie-parser';
@@ -8,6 +9,7 @@ import authRoutes from './routes/authRoutes.js';
 import authMiddleware from './middleware/authmiddleware.js';
 import searchRoutes from './routes/searchRoutes.js'
 import routeRoutes from './routes/routeRoutes.js';
+import customerRoutes from './routes/customerRoutes.js';
 import WeatherApiService from './services/notificationsWeather.js';
 
 import dotenv from 'dotenv';
@@ -33,6 +35,9 @@ WeatherApiService.checkAndCreateAlert = async () => {
 const app = express();
 const server = createServer(app);
 const io = new Server(server);
+app.use(cors({
+  origin: 'http://localhost:3000'
+}))
 app.use(express.json());
 app.use(cookieParser());
 
@@ -40,6 +45,7 @@ app.use('/auth', authRoutes);
 app.use('/search',searchRoutes);
 app.use('/routes', routeRoutes);
 app.use('/api/weather', NotificationRoutes);
+app.use('/customer', customerRoutes);
 
 startWeatherAlertScheduler();
 
@@ -56,5 +62,5 @@ app.get('/protected', authMiddleware, (req, res) => {
 });
 
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT;
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));

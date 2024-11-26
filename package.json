@@ -1,5 +1,11 @@
 {
+  "scripts": {
+    "start": "concurrently \"npm start --prefix server\" \"npm start --prefix client\""
+  },
   "dependencies": {
     "cookie-parser": "^1.4.7"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
   }
 }
