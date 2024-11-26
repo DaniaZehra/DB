@@ -9,6 +9,9 @@ class Customer extends User{
         const rows = await db.query('SELECT * from customer where username = ?', username);
         return rows;
     }
+    static async findbyemail(email){
+        const rows = await db.query('SELECT * from customer where cust_email = ?', email);
+    }
     static async create(id, username, first_name, last_name, phone_number, password,email){
         const saltRounds = parseInt(process.env.SALT_ROUNDS);
         const hashedPassword = await bcrypt.hash(password, saltRounds);
@@ -16,9 +19,9 @@ class Customer extends User{
             [id,username,first_name,last_name,phone_number, hashedPassword,email]);
     };
     static async saveRefreshToken(Id, refreshToken, type){
-        await db.query("replace into usertoken (user_id, user_type, token) values (?,?,?)",
-            [Id, type, refreshToken]
-        );
+        await db.query("DELETE FROM usertoken WHERE user_id = ? AND user_type = ?", [Id, type]);
+        await db.query("INSERT INTO usertoken (user_id, user_type, token) VALUES (?, ?, ?)", 
+        [Id, type, refreshToken]);
     }
     static async BookCourier(customer_id, courier_name){
         return await db.query('INSERT INTO couriers (customer_id, courier_name) values (?,?)',[customer_id, courier_name]);

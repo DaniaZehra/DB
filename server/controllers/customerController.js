@@ -6,7 +6,14 @@ export const registerCustomer = async(req,res)=>{
     if(!username||!password||!cust_email){
         return res.status(400).json({message:'All fields are required'});
     }
-
+    const existingUser = await Customer.findbyusername(username);
+        if (existingUser.length > 0) {
+            return res.status(400).json({ message: 'Username already exists' });
+    }
+    const existingemail = await Customer.findbyemail(username);
+    if (existingemail.length > 0) {
+        return res.status(400).json({ message: 'email already exists' });
+    }
     try{
         await Customer.create(id,username,first_name, last_name, phone_number, password,cust_email);
         res.status(201).json({message: 'Customer registered successfully'});

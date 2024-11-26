@@ -1,6 +1,7 @@
 import express from 'express';
 import {createServer} from 'http';
 import {Server} from 'socket.io';
+import cookieParser from 'cookie-parser';
 import NotificationRoutes from './routes/NotificationRoutes.js';
 import startWeatherAlertScheduler from './utils/scheduler.js';
 import authRoutes from './routes/authRoutes.js';
@@ -33,6 +34,7 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server);
 app.use(express.json());
+app.use(cookieParser());
 
 app.use('/auth', authRoutes);
 app.use('/search',searchRoutes);

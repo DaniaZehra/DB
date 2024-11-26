@@ -16,9 +16,9 @@ class Transporter extends User{
             [transporter_id,first_name, last_name,username, hashedPassword,email]);
     };
     static async saveRefreshToken(userId, refreshToken, type){
-        await db.query('replace into refresh_tokens (user_id, user_type,token)',
-            [userId,type,token]
-        );
+        await db.query("DELETE FROM usertoken WHERE user_id = ? AND user_type = ?", [Id, type]);
+        await db.query("INSERT INTO usertoken (user_id, user_type, token) VALUES (?, ?, ?)", 
+        [Id, type, refreshToken]);
     }
     static async addRoutes(start_stop, end_stop){
         return await db.query('INSERT INTO Routes (start_stop, end_stop) values (?,?,?)',[start_stop, end_stop]);
