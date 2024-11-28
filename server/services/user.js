@@ -1,4 +1,5 @@
 import db from '../config/database.js';
+import bcrypt from 'bcrypt';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -6,12 +7,18 @@ class User{
     static findbyUsername(username){
         return db.query('Select * from customers where username = ?', [username]);
     }
-    static async saveRefreshToken(userId, refreshToken){
-        return await db.query('UPDATE usertoken SET token = ? WHERE userId = ?', [refreshToken, userId]);
+    static async saveRefreshToken(userId, refreshToken) {
+        const hashedToken = await bcrypt.hash(refreshToken, 10); // Hash the token
+        const expiresAt = new Date(Date.now() + parseInt(process.env.REFRESH_TOKEN_EXPIRATION) * 1000);
+        return await db.query(
+            'UPDATE usertoken SET token = ?, expires_at = ? WHERE userId = ?',
+            [hashedToken, expiresAt, userId]
+        );
     }
-    static async findRefreshToken(userId){
-        return await db.query('SELECT token FROM usertoken WHERE userId = ?',[userId]);
-    }
+    static async findRefreshToken(userId) {
+        const result = await db.query('SELECT token FROM usertoken WHERE userId = ?', [userId]);
+        return result[0]?.token || null; // Return the hashed token
+    }    
     static async deleteByToken(refreshToken){
         const result = await db.query('DELETE FROM usertoken WHERE token = ?',[refreshToken]);
         console.log("result of deletion", result);

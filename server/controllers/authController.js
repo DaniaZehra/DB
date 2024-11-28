@@ -6,68 +6,86 @@ import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 dotenv.config();
 
-export const login = async (req,res) => {
-    const {username, password} = req.body;
-    
-    if(!username || !password){
-        return res.status(400).json({message: 'Username and password are required'});
+export const login = async (req, res) => {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+        return res.status(400).json({ message: 'Username and password are required' });
     }
 
-    try{
+    try {
+        let user;
         let userType;
-        const [user] = (await Customer.findbyusername(username))[0];
-        userType = 'customer';
+        let userId;
 
-        if(!user||user.length==0){
-            let [user] = await Transporter.findbyusername(username);
-            userType = 'transporter';
+        console.log('What is happening');
+        // Check in Customer table
+        const customerResult = await Customer.findbyusername(username);
+        if (customerResult.length > 0) {
+            user = customerResult[0];
+            userType = 'customer';
+            userId = user.cust_id;
+        } else {
+            // Check in Transporter table
+            const transporterResult = await Transporter.findbyusername(username);
+            if (transporterResult.length > 0) {
+                user = transporterResult[0];
+                userType = 'transporter';
+                userId = user.transporter_id;
+            } else {
+                return res.status(401).json({ message: 'Username not found' });
+            }
         }
-        if(!user||user.length==0){
-            return res.status(401).json({message: 'Username not found'});
-        }
-        console.log(user);
-        console.log('Received password:', password);
-        console.log('Stored hashed password:', user.hashedPassword);
 
         const isValidPassword = await bcrypt.compare(password, user.hashedPassword);
         if (!isValidPassword) {
             return res.status(401).json({ message: 'Invalid username or password' });
         }
-        const accessToken = jwt.sign(
-            { id: user.id, username: user.username, userType },
-            process.env.JWT_SECRET,
-            { expiresIn: process.env.JWT_EXPIRATION }
-        );
 
-        const refreshToken = jwt.sign(
-            { id: user.id, username: user.username, userType },
-            process.env.REFRESH_TOKEN_SECRET,
-            { expiresIn: process.env.REFRESH_TOKEN_EXPIRATION }
-        );
+        // Create JWTs
+        const payload = { id: userId, username: user.username, userType };
+        const accessToken = jwt.sign(payload, process.env.JWT_SECRET, {
+            expiresIn: process.env.JWT_EXPIRATION,
+        });
 
+        const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, {
+            expiresIn: process.env.REFRESH_TOKEN_EXPIRATION,
+        });
+
+        // Save refresh token to DB
         if (userType === 'customer') {
-            await Customer.saveRefreshToken(user.cust_id, refreshToken, 'customer');
+            await Customer.saveRefreshToken(userId, refreshToken, 'customer');
         } else {
-            await Transporter.saveRefreshToken(user.transporter_id, refreshToken,  'transporter');
+            await Transporter.saveRefreshToken(userId, refreshToken, 'transporter');
         }
-        res.cookie('accessToken', accessToken, {
+
+        // Set cookies
+        const cookieOptions = {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+            secure: process.env.NODE_ENV === 'production', // Set `false` for development
+            sameSite: 'None',
+        };
+
+        res.cookie('accessToken', accessToken, {
+            ...cookieOptions,
             maxAge: parseInt(process.env.JWT_EXPIRATION) * 1000, // Expiry in ms
         });
+
         res.cookie('refreshToken', refreshToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+            ...cookieOptions,
             maxAge: parseInt(process.env.REFRESH_TOKEN_EXPIRATION) * 1000, // Expiry in ms
         });
 
-        res.json({ userType, accessToken, refreshToken });
+        res.cookie('userType', userType, { httpOnly: false });
+        res.cookie('userId', userId, { httpOnly: false });
+
+        res.status(200).json({ message: 'Login Successful' });
     } catch (err) {
         console.error('Error during login:', err);
         res.status(500).json({ error: 'Login failed' });
     }
+};
 
-    }
 
 
 export const logout = async (req,res) =>{
@@ -86,7 +104,12 @@ export const logout = async (req,res) =>{
         secure: process.env.NODE_ENV === 'production',
     });
     try {
-        await User.deleteByToken(refreshToken);
+        const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+        if (!decoded) {
+            return res.status(401).json({ message: 'Invalid refresh token' });
+        }
+    await User.deleteByToken(refreshToken); 
+
         res.status(200).json({message: 'Logout-successful'});
     } catch (err) {
         console.log('Error deleting token', err);
@@ -102,8 +125,10 @@ export const refreshToken = async (req, res) => {
     }
 
     try {
-        const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
-
+        const savedToken = await User.findRefreshToken(decoded.id);
+        if (!savedToken || !(await bcrypt.compare(refreshToken, savedToken))) {
+            return res.status(401).json({ error: 'Invalid or expired refresh token' });
+        }
         const accessToken = jwt.sign(
             { id: decoded.id, username: decoded.username, userType: decoded.userType },
             process.env.JWT_SECRET,
@@ -116,7 +141,16 @@ export const refreshToken = async (req, res) => {
             { expiresIn: process.env.REFRESH_TOKEN_EXPIRATION }
         );
 
-        await User.saveRefreshToken(decoded.id, newRefreshToken);
+        await db.beginTransaction();
+        try {
+            await User.saveRefreshToken(decoded.id, newRefreshToken);
+            await User.deleteByToken(refreshToken);
+            await db.commit();
+        } catch (err) {
+            await db.rollback();
+            throw err;
+        }
+
 
         res.cookie('accessToken', accessToken, {
             httpOnly: true,

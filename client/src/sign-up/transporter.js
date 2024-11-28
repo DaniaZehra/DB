@@ -5,13 +5,13 @@ import Button from 'react-bootstrap/Button';
 import { Container, FloatingLabel, Row, Col } from 'react-bootstrap';
 
 
-function SignUpCustomer() {
+function SignUpTransporter() {
   const [formData, setFormData] = useState({
+
     username: '',
     first_name: '',
     last_name: '',
-    cust_email: '',
-    phone: '',
+    email: '',
     password: '',
     confirmPassword: ''
   });
@@ -95,26 +95,16 @@ function SignUpCustomer() {
             </Form.Group>
           </Row>
           <Row>
-            <Col sm={6} style={{ marginBottom: '10px' }}>
+            <Form.Group className='mb-3' controlId='username'>
               <FloatingLabel controlId='emailLabel' label='Email'>
                 <Form.Control 
                   type='text' 
                   placeholder='Email'
-                  name='cust_email'
+                  name='email'
                   value={formData.cust_email}
                   onChange={handleChange} />
               </FloatingLabel>
-            </Col>
-            <Col sm={6} style={{ marginBottom: '10px' }}>
-              <FloatingLabel controlId='phoneno' label='Phone'>
-                <Form.Control 
-                  type='text' 
-                  placeholder='Phone'
-                  name='phone'
-                  value={formData.phone}
-                  onChange={handleChange} />
-              </FloatingLabel>
-            </Col>
+            </Form.Group>
           </Row>
           <Row>
             <Form.Group className='mb-3' controlId='formBasicEmail'>
@@ -152,4 +142,4 @@ function SignUpCustomer() {
   );
 }
 
-export default SignUpCustomer;
+export default SignUpTransporter;

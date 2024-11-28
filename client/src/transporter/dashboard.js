@@ -58,10 +58,9 @@ function Dashboard() {
     setOpenModal(false);
     setModalType("");
     setFormData({
-      name: "",
-      email: "",
-      details: "",
-      action: "", 
+      origin: "",
+      destination: "",
+      stops: "" 
     });
   };
 
@@ -229,7 +228,7 @@ function Dashboard() {
   const analyticsData = [
     { title: "Total Deliveries", value: "125" },
     { title: "Pending Orders", value: "18" },
-    { title: "Active Drivers", value: "32" },
+    { title: "Total Bookings", value: "32" },
     { title: "Revenue", value: "$12,450" },
   ];
 

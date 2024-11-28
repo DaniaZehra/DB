@@ -8,7 +8,7 @@ dotenv.config();
 
 class Customer extends User {
     static async findbyusername(username) {
-        const rows = await db.query('SELECT * from customer where username = ?', [username]);
+        const [rows] = await db.query('SELECT * from customer where username = ?', [username]);
         return rows;
     }
 
