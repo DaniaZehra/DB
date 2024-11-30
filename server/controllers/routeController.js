@@ -1,10 +1,10 @@
 import  TransportRoute  from '../services/routes.js';
 
 export const createRoutes = async (req, res) => {
-    const { origin, destination, distance } = req.query;
+    const { stops, origin, destination, transporter_id} = req.body;
     
     try {
-        const result = await TransportRoute.createRoutes(origin,destination,distance);
+        const result = await TransportRoute.createRoute(origin,destination,stops, transporter_id);
         res.json(result);
     } catch (error) {
         console.error('Error in controller:', error);
@@ -13,7 +13,7 @@ export const createRoutes = async (req, res) => {
 };
 
 export const getAllRoutes = async(req,res) =>{
-    const { input } = req.query;
+    const { input } = req.body;
     
     try {
         const result = await TransportRoute.getAllRoutes();

@@ -26,9 +26,9 @@ class Customer extends User {
         );
     }
 
-    static async saveRefreshToken(Id, refreshToken, type) {
-        await db.query("DELETE FROM usertoken WHERE user_id = ? AND user_type = ?", [Id, type]);
-        await db.query("INSERT INTO usertoken (user_id, user_type, token) VALUES (?, ?, ?)", [Id, type, refreshToken]);
+    static async saveRefreshToken(Id, refreshToken) {
+        await db.query("DELETE FROM customer_usertoken WHERE user_id = ?", [Id]);
+        await db.query("INSERT INTO customer_usertoken (user_id, token) VALUES (?, ?, ?)", [Id,refreshToken]);
     }
 
     static async BookCourier(customer_id, courier_name) {
@@ -88,45 +88,47 @@ class Customer extends User {
 
     static async estimateFare(origin, destination) {
         const apiKey = 'AIzaSyD3X0SjDZocXb0C9TCtl9xdebH8MyjIwnI';
-
         const baseFare = 120;
         const costPerKm = 40;
         const costPerMin = 2;
         const trafficSurcharge = 50;
-
+        const origin_m = origin + ', Karachi';
+        const destination_m = destination + ', Karachi';
+    
         try {
             const departureTime = Math.floor(Date.now() / 1000);
             const response = await fetch(
-                `https://maps.googleapis.com/maps/api/directions/json?origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&key=${apiKey}&departure_time=${departureTime}&traffic_model=best_guess`
+                `https://maps.googleapis.com/maps/api/directions/json?origin=${encodeURIComponent(origin_m)}&destination=${encodeURIComponent(destination_m)}&key=${apiKey}&departure_time=${departureTime}&traffic_model=best_guess`
             );
 
             const data = await response.json();
-
-            if (data.error_message) {
-                throw new Error(`API Error: ${data.error_message}`);
+            console.log('API Response:', data);
+    
+            if (data.status !== 'OK' || !data.routes || data.routes.length === 0) {
+                throw new Error(`No routes found or API error: ${data.status}`);
             }
-
+    
             const route = data.routes[0];
+            if (!route.legs || route.legs.length === 0) {
+                throw new Error('No legs found in the route.');
+            }
+    
             const distanceInMeters = route.legs[0].distance.value;
             const durationInSeconds = route.legs[0].duration.value;
-
+    
             const distanceInKm = distanceInMeters / 1000;
             const timeInMinutes = durationInSeconds / 60;
-
+    
             const estimatedFare =
-                baseFare +
-                (costPerKm * distanceInKm) +
-                (costPerMin * timeInMinutes) +
-                trafficSurcharge;
-
-            const finalFare = Math.ceil(estimatedFare);
-            console.log(`Estimated Fare: ${finalFare} Rs`);
-            return finalFare;
+                baseFare + (costPerKm * distanceInKm) + (costPerMin * timeInMinutes) + trafficSurcharge;
+    
+            return Math.ceil(estimatedFare);
         } catch (error) {
             console.error('Error during fare estimation:', error);
             throw error;
         }
     }
+    
 
     static async updateCustomerDetails(custId, updates) {
         try {
@@ -190,7 +192,7 @@ class Customer extends User {
     static async bookRide(custId, routeId, rideDate) {
         try {
           const routeQuery = 'SELECT transporter_id FROM route WHERE route_id = ?';
-          const [routeResult] = await client.promise().query(routeQuery, [routeId]);
+          const [routeResult] = await db.query(routeQuery, [routeId]);
           if (routeResult.length === 0) {
             throw new Error('Invalid route_id selected.');
           }
@@ -208,10 +210,10 @@ class Customer extends User {
           const feedbackId = feedbackResult.insertId;
     
           const bookingQuery = `
-            INSERT INTO bookings (customer_id, vehicle_id, route_id, transporter_id, ride_date, feedback_id)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO bookings (cust_id, vehicle_id, route_id, transporter_id, ride_date)
+            VALUES (?, ?, ?, ?, ?)
           `;
-          const [bookingResult] = await client.promise().query(bookingQuery, [
+          const [bookingResult] = await db.query(bookingQuery, [
             custId,
             vehicleId,
             routeId,

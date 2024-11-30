@@ -1,122 +1,18 @@
-/* General container styling */
-.container {
+.CRUD-container {
+  display: flex;
+  flex-direction: column; /* Stacks children vertically */
+  align-items: center;    /* Centers children horizontally */
+  justify-content: flex-start; /* Aligns children at the top */
   padding: 20px;
-  margin: 0 auto;
-  max-width: 1200px; /* Limit maximum width for better readability */
-  background-color: #f9f9f9; /* Subtle background for contrast */
+  gap: 20px; /* Space between the divs */
 }
 
-/* Section titles */
-.section-title {
-  font-size: 1.75rem; /* Slightly larger for emphasis */
-  margin-bottom: 20px;
-  color: #444; /* Slightly softer tone for better readability */
-  text-align: center; /* Center align for uniformity */
-  text-transform: uppercase; /* Add a professional touch */
-}
-
-/* Flashcard styling */
-.flashcard {
-  cursor: pointer;
-  background-color: #1565c0; /* Slightly darker blue */
-  color: white;
-  border-radius: 12px; /* More rounded for a modern look */
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  padding: 16px; /* Add padding for content */
-}
-
-.flashcard:hover {
-  transform: scale(1.08); /* Slightly larger hover effect */
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* More noticeable shadow */
-}
-
-.flashcard-content {
-  text-align: center;
-  font-size: 1rem; /* Ensure content is legible */
-}
-
-/* Analytics box styling */
-.analytics-box {
-  background-color: #ffffff; /* White for clean look */
-  border: 2px solid #1976d2; /* Match brand colors */
-  border-radius: 10px;
+.CRUD-container > div {
+  width: 100%; /* Makes divs take full width of the container */
+  max-width: 800px; /* Optional: Set a max-width for better visuals */
+  border: 1px solid #ddd; /* Example border for visibility */
   padding: 20px;
-  text-align: center;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.analytics-box:hover {
-  transform: translateY(-5px); /* Subtle hover animation */
-  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15); /* Light shadow */
-}
-
-.analytics-title {
-  font-size: 1.25rem; /* Slightly larger for hierarchy */
-  color: #333; /* Consistent with other text */
-  margin-bottom: 10px;
-}
-
-.analytics-value {
-  font-size: 2.5rem; /* More prominent for emphasis */
-  font-weight: bold;
-  margin-top: 8px;
-  color: #1565c0; /* Brand-aligned color */
-}
-
-/* Modal styling */
-.modal-box {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 400px;
-  background-color: white;
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.3); /* Slightly stronger shadow */
-  animation: fadeIn 0.3s ease-in-out; /* Smooth appearance */
-}
-
-.modal-title {
-  font-size: 1.5rem; /* Slightly larger for modal focus */
-  margin-bottom: 16px;
-  font-weight: bold;
-  color: #333;
-}
-
-.modal-body {
-  font-size: 1rem;
-  color: #555;
-  line-height: 1.5; /* Add line spacing for readability */
-}
-
-/* Section header adjustments */
-.section-header {
-  margin-bottom: 1.5rem; /* Add consistent spacing below the header */
-  text-align: center; /* Center align for a cohesive look */
-}
-
-/* Hover effects for entire sections */
-.section:hover {
-  background-color: #eef7ff; /* Light blue tint on hover */
-  transition: background-color 0.3s ease;
-}
-
-/* Add spacing between sections */
-.section {
-  margin-bottom: 3rem;
-  padding: 20px;
-  border-radius: 10px;
-}
-
-/* Keyframes for modal fade-in animation */
-@keyframes fadeIn {
-  from {
-      opacity: 0;
-      transform: translate(-50%, -45%);
-  }
-  to {
-      opacity: 1;
-      transform: translate(-50%, -50%);
-  }
+  background-color: #f9f9f9; /* Example background */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optional shadow */
+  border-radius: 8px; /* Optional rounded corners */
 }

@@ -40,6 +40,7 @@ function SignUpTransporter() {
 
       if (response.ok) {
         alert('Registration successful');
+        window.location.href = '/dashboard'
       } else {
         const error = await response.json();
         alert(`Error: ${error.message}`);

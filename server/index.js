@@ -11,6 +11,7 @@ import searchRoutes from './routes/searchRoutes.js'
 import routeRoutes from './routes/routeRoutes.js';
 import customerRoutes from './routes/customerRoutes.js';
 import WeatherApiService from './services/notificationsWeather.js';
+import TransportRoutes from './routes/transporterRoutes.js'
 
 import dotenv from 'dotenv';
 dotenv.config();
@@ -46,6 +47,8 @@ app.use('/search',searchRoutes);
 app.use('/routes', routeRoutes);
 app.use('/api/weather', NotificationRoutes);
 app.use('/customer', customerRoutes);
+app.use('/transporter',TransportRoutes);
+app.use('/admin', adminRoutes);
 
 startWeatherAlertScheduler();
 

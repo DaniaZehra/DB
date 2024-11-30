@@ -120,26 +120,18 @@ export const bookCourier = async (req, res) => {
 
 export const bookRide = async (req, res) => {
     try {
-      // Extract data from the request body
       const { custId, routeId, rideDate } = req.body;
-  
-      // Basic validation
       if (!custId || !routeId || !rideDate) {
         return res.status(400).json({ message: 'Missing required fields: custId, routeId, or rideDate.' });
       }
-  
-      // Call the booking service
-      const bookingResult = await bookingService.bookRide(custId, routeId, rideDate);
-  
-      // Respond with success
+      const bookingResult = await Customer.bookRide(custId, routeId, rideDate);
+
       res.status(201).json({
         message: 'Ride booked successfully!',
         bookingId: bookingResult.insertId,
       });
     } catch (error) {
       console.error('Error in booking controller:', error.message);
-  
-      // Handle specific errors
       if (error.message.includes('Invalid route_id selected')) {
         return res.status(400).json({ message: 'Invalid route selected.' });
       }

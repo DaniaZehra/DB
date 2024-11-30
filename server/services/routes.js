@@ -3,12 +3,12 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 class TransportRoute {
-    async getAllRoutes(){
-        return await db.query("SELECT * FROM routes");
+    static async getAllRoutes(transporter_id){
+        return await db.query("SELECT * FROM route where transporter_id = ?",[transporter_id]);
     }
-    async createRoute(data){
-        const {origin, destination, distance} = data;
-        return await db.query("INSERT INTO routes (origin, destination, distance) Values(?,?,?)",[origin, destination, distance]);
+    static async createRoute(origin, destination, stops, transporter_id){;
+        return await db.query("INSERT INTO route (origin, destination, stops, transporter_id) Values(?,?,?,?)",
+            [origin, destination, stops, transporter_id]);
     }
 }
 export default TransportRoute;
