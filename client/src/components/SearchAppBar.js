@@ -8,10 +8,12 @@ import Cookies from 'js-cookie'
 import { CardContent } from '@mui/material';
 import DatePicker from './DatePicker';
 import {Stack} from '@mui/material'
+import {Collapse} from '@mui/material';
 import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import InputBase from '@mui/material/InputBase';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Badge from '@mui/material/Badge';
 import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
@@ -32,6 +34,7 @@ import { Unstable_Popup as BasePopup } from '@mui/base';
 import Collapsible from 'react-collapsible';
 import Form from 'react-bootstrap/Form';
 import { Row, FloatingLabel } from 'react-bootstrap';
+import BookingModal from './BookingModal'; 
 
 
 
@@ -88,6 +91,8 @@ export default function NavigationAppBar() {
   const [selectedRide, setSelectedRide] = useState(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [startDate, setStartDate] = useState(new Date());
+  const [selectedRoute, setSelectedRoute] = useState(null);
+  const [expandedRoute, setExpandedRoute] = useState(null);
   const [formData, setFormData] = useState({
       origin: ``,
       destination: ``
@@ -97,6 +102,13 @@ export default function NavigationAppBar() {
   const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
   recognition.continuous = false;
   recognition.interimResults = false;
+
+  const handleExpandClick = (routeId) => {
+    setExpandedRoute(expandedRoute === routeId ? null : routeId);
+  };
+  const handleDateChange = (date) => {
+    setSelectedDate(date); // Update the selected date.
+  };
 
   // Permission Handling for Microphone
   const checkMicrophonePermission = async () => {
@@ -173,51 +185,77 @@ export default function NavigationAppBar() {
   const open = Boolean(anchor);
   const id = open ? 'simple-popper' : undefined;
   const handleKeyDown = async (e) => {
-    if(e.key==='Enter'){
-      try{
-          const response = await fetch(`${process.env.REACT_APP_BASE_URL}/search`, 
-            { method: 'POST', 
-              headers: { 'Content-Type': 'application/json'},
-              body: JSON.stringify({input:searchQuery})
-              //credentials: 'include' 
-      });
-      if(response.ok){
-        const data = await response.json();
-        alert(JSON.stringify(data));
-        if(data.result.length>0 && data.result){
-          setSearchResult(data.result);
-          setRoutesWithSchedules(searchResult);
+    if (e.key === 'Enter') {
+      try {
+        const response = await fetch(`${process.env.REACT_APP_BASE_URL}/search`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ input: searchQuery }),
+        });
+  
+        if (response.ok) {
+          const data = await response.json();
+  
+          const formattedRoutes = data.result.reduce((acc, route) => {
+            const existingRoute = acc.find((r) => r.route_id === route.route_id);
+            if (existingRoute) {
+              existingRoute.schedules.push({
+                schedule_id: route.schedule_id,
+                departure_time: route.departure_time,
+                arrival_time: route.arrival_time,
+                status: route.status,
+              });
+            } else {
+              acc.push({
+                ...route,
+                schedules: route.schedule_id
+                  ? [
+                      {
+                        schedule_id: route.schedule_id,
+                        departure_time: route.departure_time,
+                        arrival_time: route.arrival_time,
+                        status: route.status,
+                      },
+                    ]
+                  : [],
+              });
+            }
+            return acc;
+          }, []);
+  
+          setRoutesWithSchedules(formattedRoutes);
           setNoResult(false);
-        }
-        else{
+        } else {
           setNoResult(true);
-          setSearchResult(null);
         }
+      } catch (error) {
+        console.error(error);
       }
-        } catch(err){
-
-        }
     }
+  
   };
   const handleSubmit = async (ride,date) =>{
+
+    const formattedDate = new Date(selectedDate).toISOString().split('T')[0];
     const Data = {
-      cust_id:Cookies.get('userId'),
+      cust_id:parseInt(Cookies.get('userId'),10),
       route_id:ride.route_id,
-      rideDate:date
+      rideDate:formattedDate
     }
-    alert(Data.cust_id);
-    alert(Data.rideDate);
-    alert(Data.route_id);
+    console.log("Payload sent to backend:", JSON.stringify(Data));
     try{
-      const result = await fetch(`${process.env.REACT_APP_BASE_URL}/customer/bookRide`,
+      const response = await fetch(`${process.env.REACT_APP_BASE_URL}/customer/bookRide`,
         {
-          method: 'PUT',
-          headers: { 'Content-Type': `application/json`},
+          method: "PUT",
+          headers: { 'Content-Type': 'application/json'},
           body: JSON.stringify(Data),
-          credentials: 'include'
+          credentials: "include",
         }
       );
-      if(result.ok){
+      const result = response.json();
+      console.log("Response status:", result.status);
+      console.log("Response Body",response);
+      if(result.created){
         alert("This Works");
       }
     }
@@ -225,10 +263,17 @@ export default function NavigationAppBar() {
       alert("Error in booking ride");
     }
   };
-  const handleOpenModal = (ride) => {
-    setSelectedRide(ride);
-    setOpen(true);
+  const handleOpenModal = (route) => {
+    alert(route.stops);
+    if(route?.stops){
+      setSelectedRoute(route); // Set the selected route when opening the modal.
+      setOpen(true);
+    }
+    else{
+      alert("no route selected");
+    }
   };
+
   //Fare Estimation
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -237,13 +282,23 @@ export default function NavigationAppBar() {
 
   const handleEstimate = async() => {
     try{
-      const result = await fetch(`${process.env.REACT_APP_BASE_URL}/customer/estimate-fare`,
+      const response = await fetch(`${process.env.REACT_APP_BASE_URL}/customer/estimate-fare`,
         {
           method:'POST',
           headers:{'Content-type':`application/json`},
-          body: JSON.stringify(formData)
+          body: JSON.stringify({
+            "origin":selectedDate.origin,
+            "destination":selectedDate.destination
+          })
         }
       )
+      const result = response.json();
+      console.log(JSON.stringify({
+        "origin":selectedDate.origin,
+        "destination":selectedDate.destination
+      }));
+      console.log("Response status:", result.status);
+      console.log("Response Body",response);
       if(result.ok){
         const data = await result.json();
         alert(data.estimatedFare);
@@ -255,8 +310,11 @@ export default function NavigationAppBar() {
   }
 
   const handleConfirmBooking = () => {
-    if (selectedRide) {
-      handleSubmit(selectedRide, selectedDate); // Pass date to the submission handler
+    alert("handleConfirmBooking");
+    alert(selectedRoute);
+    alert(selectedDate);
+    if (selectedRoute) {
+      handleSubmit(selectedRoute, selectedDate); // Pass date to the submission handler
       setOpen(false);
     }
   };
@@ -381,78 +439,79 @@ export default function NavigationAppBar() {
   
         {routesWithSchedules && Array.isArray(routesWithSchedules) && routesWithSchedules.length > 0 && (
           <List>
-            {routesWithSchedules.map((result, index) => (
-              <ListItem key={index}>
-                <Card
-                  sx={{ width: '100%', minHeight: '100px', marginTop: '20px', marginBottom: '20px' }}
+      {routesWithSchedules && routesWithSchedules.length > 0 ? (
+        routesWithSchedules.map((route) => (
+          <ListItem key={route.route_id}>
+            <Card
+              sx={{
+                width: '100%',
+                minHeight: '100px',
+                marginTop: '20px',
+                marginBottom: '20px',
+              }}
+            >
+              <Stack direction="row" spacing={2} alignItems="center">
+                <CardContent>
+                  <Typography variant="h6">{`Route ID: ${route.route_id}`}</Typography>
+                  <Typography variant="body2">
+                    {`${route.origin} → ${route.stops} → ${route.destination}`}
+                  </Typography>
+                </CardContent>
+                <Button
+                  aria-label="expand-schedule"
+                  variant="contained"
+                  endIcon={<ExpandMoreIcon />}
+                  onClick={() => handleExpandClick(route.route_id)}
                 >
-                  <Stack spacing={2} direction="row">
-                    <CardContent>
-                      <ListItemText
-                        primary={result.route_id}
-                        secondary={`${result.origin}, ${result.stops}, ${result.destination}`}
-                      />
-                    </CardContent>
-                    <Button
+                  {expandedRoute === route.route_id ? 'Collapse' : 'View Schedules'}
+                </Button>
+                <Button
                       aria-label="book-ride"
                       variant="contained"
-                      onClick={() => handleOpenModal(result)}
+                      onClick={() => handleOpenModal(route)}
                     >
                       Book Ride
-                    </Button>
-                  </Stack>
-                </Card>
-              </ListItem>
-            ))}
-          </List>
+                </Button>
+              </Stack>
+
+              <Collapse in={expandedRoute === route.route_id} timeout="auto" unmountOnExit>
+                <CardContent>
+                  {route.schedules && route.schedules.length > 0 ? (
+                    route.schedules.map((schedule) => (
+                      <Typography key={schedule.schedule_id} variant="body2" sx={{ mb: 1 }}>
+                        {`Schedule ID: ${schedule.schedule_id}, Departure: ${schedule.departure_time}, Arrival: ${schedule.arrival_time}, Status: ${schedule.status}`}
+                      </Typography>
+                    ))
+                  ) : (
+                    <Typography variant="body2" color="textSecondary">
+                      No schedules found.
+                    </Typography>
+                  )}
+                </CardContent>
+              </Collapse>
+            </Card>
+          </ListItem>
+        ))
+      ) : (
+        <Typography variant="body1" color="textSecondary">
+          No routes found.
+        </Typography>
+      )}
+    </List>
         )}
   
-        <Modal open={Modalopen} onClose={() => setOpen(false)}>
-          <Box sx={{ padding: '20px', backgroundColor: 'white', margin: '50px auto', maxWidth: '400px' }}>
-            <Typography variant="h6">Select a Date for the Ride</Typography>
-              <DatePicker
-                selected={startDate}
-                onChange={(date) => setStartDate(date)}
-              />
-
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleConfirmBooking}
-            >
-              Confirm Booking
-            </Button>
-            <Collapsible trigger="Fare Estimation">
-              <Row>
-                <FloatingLabel controlId='origin' label='origin'>
-                    <Form.Control 
-                      type='text' 
-                        placeholder='origin' 
-                        name='origin' 
-                        value={formData.origin} 
-                        onChange={handleChange} 
-                  />
-                </FloatingLabel>
-                <FloatingLabel controlId='stopB' label='stopB'>
-                    <Form.Control 
-                      type='text' 
-                      placeholder='destination' 
-                      name='destination' 
-                      value={formData.destination} 
-                      onChange={handleChange} 
-                  />
-                </FloatingLabel>
-              </Row>
-              <Button
-              variant="contained"
-              color="primary"
-              onClick={handleEstimate}>
-                Get estimate
-              </Button>              
-            </Collapsible>
-          </Box>
-        </Modal>
-
+        <BookingModal
+        Modalopen={Modalopen}
+        setOpen={setOpen}
+        selectedRoute={selectedRoute}
+        handleConfirmBooking={handleConfirmBooking}
+        handleEstimate={handleEstimate}
+        handleDateChange={handleDateChange}
+        formData={formData}
+        setFormData={setFormData}
+        handleChange={handleChange}
+        selectedDate={selectedDate}
+      />
 
   
         {searchResult && !Array.isArray(searchResult) && (

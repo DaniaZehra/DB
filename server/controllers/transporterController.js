@@ -7,6 +7,24 @@ export const registerTransporter = async(req,res)=>{
     if(!username||!password||!email){
         return res.status(400).json({message:'All fields are required'});
     }
+    const existingUser = await Transporter.findbyusername(username);
+        if (existingUser && existingUser.length > 2) {
+            console.log(existingUser.length, existingUser);
+            return res.status(400).json({ message: 'Username already exists' });
+        }
+
+    const existingEmail = await Transporter.findbyemail(cust_email);
+        if (existingEmail && existingEmail.length > 2) {
+            return res.status(400).json({ message: 'Email already exists' });
+        }
+
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+        if (!passwordRegex.test(password)) {
+            return res.status(400).json({
+                message: 'Password must be at least 8 characters long, include at least one number, and one special character.',
+            });
+        }
 
     try{
         await Transporter.create(first_name,last_name,username,password, email);
@@ -23,6 +41,19 @@ export const Retrieve = async(req, res)=>{
     const {table_name, userId} = req.body;
     try{
         const result = await Transporter.retrieve(table_name, userId);
+        console.log(result);
+        res.json({result});
+    }
+    catch (error) {
+        console.error('Error retrievin:', error);
+        res.status(500).json({message: 'Internal server error'});
+    }
+}
+
+export const Delete = async(req, res)=>{
+    const {table_name, userId, Id} = req.body;
+    try{
+        const result = await Transporter.delete(table_name, userId);
         console.log(result);
         res.json({result});
     }

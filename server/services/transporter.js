@@ -10,6 +10,10 @@ class Transporter extends User{
         const [rows] = await db.query('SELECT * from transporter where username = ?', username);
         return rows;
     }
+    static async findbyEmail(email){
+        const [rows] = await db.query('SELECT * from transporter where email = ?', username);
+        return rows;
+    }
     static async create(first_name,last_name,username,password, email){
         console.log('Password and SaltRounds',password,process.env.SALT_ROUNDS);
         const hashedPassword = await bcrypt.hash(password, parseInt(process.env.SALT_ROUNDS));
@@ -29,6 +33,10 @@ class Transporter extends User{
     }
     static async retrieve(table_name, userId) {
         const sql = `SELECT * FROM ${table_name} WHERE transporter_id = ?`;
+        return await db.query(sql, [userId]);
+    }
+    static async delete(table_name, userId) {
+        const sql = `delete FROM ${table_name} WHERE transporter_id = ?`;
         return await db.query(sql, [userId]);
     }
     static async viewAnalytics(transporterId) {

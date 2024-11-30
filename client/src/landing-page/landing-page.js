@@ -21,13 +21,14 @@ const LandingPage = () => {
   };
 
   return (
+    <div className="LandingPage" style={{backgroundColor:'#d6d4a0'}}>
     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center" }}>
       <Container maxWidth="sm">
         <Box textAlign="center" py={5}>
-          <Typography variant="h3" gutterBottom>
+          <Typography variant="h3" gutterBottom style={{}}>
             Welcome to Our Service
           </Typography>
-          <Typography variant="subtitle1" gutterBottom>
+          <Typography variant="subtitle1" gutterBottom color='#1e1e1e'>
             Sign in or sign up to get started
           </Typography>
 
@@ -67,6 +68,7 @@ const LandingPage = () => {
           </Grid2>
         </Box>
       </Container>
+    </div>
     </div>
   );
 };

@@ -40,6 +40,7 @@ function SignUpCustomer() {
 
       if (response.ok) {
         alert('Registration successful');
+        window.location.href = '/navigation-app-bar'
       } else {
         const error = await response.json();
         alert(`Error: ${error.message}`);

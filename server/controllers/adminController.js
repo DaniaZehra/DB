@@ -1,4 +1,4 @@
-import AdminService from './AdminService.js';
+import AdminService from '../services/admin.js';
 
 export const adminSignin = async (req, res) => {
     const { username, password } = req.body;

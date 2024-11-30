@@ -1,4 +1,4 @@
-import db from './db.js'; // Assuming you have a db.js file for MySQL connection
+import db from '../config/database.js';
 import crypto from 'crypto';
 
 export default class Admin {

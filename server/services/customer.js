@@ -17,23 +17,23 @@ class Customer extends User {
         return rows;
     }
 
-    static async create(username, first_name, last_name, phone_number, password, email) {
+    static async create(username, first_name, last_name, password, email) {
         const saltRounds = parseInt(process.env.SALT_ROUNDS);
         const hashedPassword = await bcrypt.hash(password, saltRounds);
         return await db.query(
-            'INSERT INTO customer (username, first_name, last_name, phone_number, cust_password, cust_email) VALUES (?, ?, ?, ?, ?, ?)',
-            [username, first_name, last_name, phone_number, hashedPassword, email]
+            'INSERT INTO customer (username, first_name, last_name, hashedPassword, cust_email) VALUES (?, ?, ?, ?, ?)',
+            [username, first_name, last_name, hashedPassword, email]
         );
     }
 
     static async saveRefreshToken(Id, refreshToken) {
         await db.query("DELETE FROM customer_usertoken WHERE user_id = ?", [Id]);
-        await db.query("INSERT INTO customer_usertoken (user_id, token) VALUES (?, ?, ?)", [Id,refreshToken]);
+        await db.query("INSERT INTO customer_usertoken (user_id, token) VALUES (?, ?)", [Id,refreshToken]);
     }
 
-    static async BookCourier(customer_id, courier_name) {
-        return await db.query('INSERT INTO couriers (customer_id, courier_name) values (?, ?)', [customer_id, courier_name]);
-    }
+    // static async BookCourier(customer_id, courier_name) {
+    //     return await db.query('INSERT INTO couriers (customer_id, courier_name) values (?, ?)', [customer_id, courier_name]);
+    // }
 
     static async viewRoutes() {
         try {
@@ -189,10 +189,10 @@ class Customer extends User {
         }
     }
 
-    static async bookRide(custId, routeId, rideDate) {
+    static async bookRide(cust_id, route_id, rideDate) {
         try {
           const routeQuery = 'SELECT transporter_id FROM route WHERE route_id = ?';
-          const [routeResult] = await db.query(routeQuery, [routeId]);
+          const [routeResult] = await db.query(routeQuery, [route_id]);
           if (routeResult.length === 0) {
             throw new Error('Invalid route_id selected.');
           }
@@ -205,23 +205,18 @@ class Customer extends User {
           }
           const vehicleId = vehicleResult[0].vehicle_id;
     
-          const feedbackInsertQuery = 'INSERT INTO feedback (comments) VALUES ("No feedback yet")';
-          const [feedbackResult] = await db.query(feedbackInsertQuery);
-          const feedbackId = feedbackResult.insertId;
-    
           const bookingQuery = `
             INSERT INTO bookings (cust_id, vehicle_id, route_id, transporter_id, ride_date)
             VALUES (?, ?, ?, ?, ?)
           `;
           const [bookingResult] = await db.query(bookingQuery, [
-            custId,
+            cust_id,
             vehicleId,
-            routeId,
+            route_id,
             transporterId,
             rideDate,
-            feedbackId,
           ]);
-    
+          db.query('UPDATE customer SET loyalty_points = loyalty_points + 5 WHERE cust_id = ?', cust_id);
           console.log('Booking successful! Booking ID:', bookingResult.insertId);
           return bookingResult;
         } catch (error) {

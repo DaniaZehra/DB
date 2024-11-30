@@ -4,16 +4,18 @@ div.form-wrapper {
     display: flex;
     align-items: center;
     justify-content: center;
+    background-color: #fefefe;
   }
   
   form {
     border-radius: 10px;
     box-shadow: 0 0 5px 0 hsl(0, 0%, 74%);
     padding: 20px;
+    background-color: #d6d4a0
   }
   
   button.btn.btn-primary {
-    background-color: white;
+    background-color: #d6d4a0;
     color: black;
     border: none;
     transition: all 0.3s ease;

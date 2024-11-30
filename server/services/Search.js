@@ -15,7 +15,7 @@ export const searchRoutesService = async (input) => {
                 s.status
             FROM 
                 route r 
-            INNER JOIN 
+            LEFT JOIN 
                 schedule s 
             ON 
                 r.route_id = s.route_id 

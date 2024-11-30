@@ -19,7 +19,15 @@ export const registerCustomer = async (req, res) => {
             return res.status(400).json({ message: 'Email already exists' });
         }
 
-        await Customer.create(username, first_name, last_name, phone_number, password, cust_email);
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+        if (!passwordRegex.test(password)) {
+            return res.status(400).json({
+                message: 'Password must be at least 8 characters long, include at least one number, and one special character.',
+            });
+        }
+
+        await Customer.create(username, first_name, last_name, password, cust_email);
         res.status(201).json({ message: 'Customer registered successfully' });
     } catch (error) {
         console.error('Error registering customer:', error);
@@ -120,22 +128,24 @@ export const bookCourier = async (req, res) => {
 
 export const bookRide = async (req, res) => {
     try {
-      const { custId, routeId, rideDate } = req.body;
-      if (!custId || !routeId || !rideDate) {
+      const { cust_id, route_id, rideDate } = req.body;
+      if (!cust_id || !route_id || !rideDate) {
         return res.status(400).json({ message: 'Missing required fields: custId, routeId, or rideDate.' });
       }
-      const bookingResult = await Customer.bookRide(custId, routeId, rideDate);
+      const bookingResult = await Customer.bookRide(cust_id, route_id, rideDate);
+      console.log(bookingResult);
 
       res.status(201).json({
-        message: 'Ride booked successfully!',
-        bookingId: bookingResult.insertId,
+        message: 'Ride booked successfully!'
       });
     } catch (error) {
       console.error('Error in booking controller:', error.message);
       if (error.message.includes('Invalid route_id selected')) {
+        console.log("Error here");
         return res.status(400).json({ message: 'Invalid route selected.' });
       }
       if (error.message.includes('No vehicle found for the selected transporter')) {
+        console.log("Error here");
         return res.status(404).json({ message: 'No available vehicle for the selected route.' });
       }
   
