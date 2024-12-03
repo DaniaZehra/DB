@@ -4,7 +4,6 @@ import {createServer} from 'http';
 import {Server} from 'socket.io';
 import cookieParser from 'cookie-parser';
 import NotificationRoutes from './routes/NotificationRoutes.js';
-import startWeatherAlertScheduler from './utils/scheduler.js';
 import authRoutes from './routes/authRoutes.js';
 import authMiddleware from './middleware/authmiddleware.js';
 import searchRoutes from './routes/searchRoutes.js'
@@ -17,9 +16,6 @@ import adminRoutes from './routes/adminRoutes.js'
 import dotenv from 'dotenv';
 dotenv.config();
 
-WeatherApiService.checkAndCreateAlert = async () => {
-  console.log('Weather Alert Service Called');
-};
 
 // // Test function
 // async function testStartWeatherAlertScheduler() {
@@ -51,8 +47,7 @@ app.use('/api/weather', NotificationRoutes);
 app.use('/customer', customerRoutes);
 app.use('/transporter',TransportRoutes);
 app.use('/admin', adminRoutes);
-
-startWeatherAlertScheduler();
+app.use("/alerts", NotificationRoutes);
 
 
 io.on('connection', (socket) => {

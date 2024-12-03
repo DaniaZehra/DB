@@ -1,7 +1,7 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import Cookies from 'js-cookie'
 import { Container, FloatingLabel, Row } from 'react-bootstrap';
 import './signin.css';
@@ -24,6 +24,7 @@ function SignIn() {
             alert('All fields are required');
             return;
         }
+        console.log("Payload : " ,JSON.stringify(formData));
         try {
             setLoading(true);
             const response = await fetch('http://localhost:5000/auth/login', {
@@ -32,7 +33,8 @@ function SignIn() {
                 body: JSON.stringify(formData),
                 credentials: 'include', 
             });
-    
+            console.log("Payload : " ,JSON.stringify(formData));
+            console.log(response);
             if (response.ok) {
                 const userType = Cookies.get('userType');
                 const userId = Cookies.get('userId');

@@ -31,6 +31,7 @@ import BookingModal from './BookingModal';
 import FareEstimation from './FareEstimationPopUp'
 import TrafficUpdate from './TrafficUpdatePopUp';
 import LoyaltyPoints from './LoyaltyPoints';
+import WeatherAlerts from '../notifications/WeatherAlerts';
 
 
 const Search = styled('div')(({ theme }) => ({
@@ -288,7 +289,8 @@ export default function NavigationAppBar() {
 
   };
 
-  return (<Box sx={{ flexGrow: 1 }}>
+  return (
+  <Box sx={{ flexGrow: 1 }}>
     <AppBar position="static">
       <Toolbar>
         {/* Menu Icon (Drawer Trigger) */}
@@ -348,6 +350,7 @@ export default function NavigationAppBar() {
             onChange={(e) => setSearchQuery(e.target.value)}
             inputProps={{ 'aria-label': 'search' }}
             onKeyDown={handleKeyDown}
+            aria-label='Search Bar'
           />
           <IconButton
             color="inherit"
@@ -412,8 +415,8 @@ export default function NavigationAppBar() {
             >
               <Stack direction="row" spacing={2} alignItems="center">
                 <CardContent>
-                  <Typography variant="h6">{`Route ID: ${route.route_id}`}</Typography>
-                  <Typography variant="body2">
+                  <Typography variant="h6" aria-label={route.route_id}>{`Route ID: ${route.route_id}`}</Typography>
+                  <Typography variant="body2" aria-label={`${route.origin} ${route.stops} ${route.destination}`}>
                     {`${route.origin} → ${route.stops} → ${route.destination}`}
                   </Typography>
                 </CardContent>
@@ -498,6 +501,7 @@ export default function NavigationAppBar() {
       <MenuItem onClick={handleProfilePage}>Profile</MenuItem>
       <MenuItem onClick={handleLogOut}>Logout</MenuItem>
     </Menu>
+    <WeatherAlerts></WeatherAlerts>
   </Box>
   );
 }

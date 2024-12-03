@@ -1,61 +1,26 @@
-import Notification from '../services/notifications.js';
+import fetch from "node-fetch";
 
-const notificationService = new Notification();
+export const getWeatherAlerts = async (req, res) => {
+    const { location } = req.query;
 
-// Fetch all alerts
-export const getAllAlerts = async (req, res) => {
-    try {
-        const alerts = await notificationService.getAlerts();
-        res.status(200).json(alerts);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
+    if (!location) {
+        return res.status(400).json({ error: "Location is required" });
     }
-};
 
-// Create a new alert
-export const createAlert = async (req, res) => {
+    const apiKey = process.env.WEATHER_API_KEY;
+    const url = `https://api.weatherapi.com/v1/alerts.json?key=${apiKey}&q=${location}`;
+
     try {
-        const { type, time_stamp, content } = req.body;
+        const response = await fetch(url);
+        const data = await response.json();
 
-        if (!type || !time_stamp || !content) {
-            return res.status(400).json({ error: "Missing required fields" });
+        if (data.alerts && data.alerts.alert.length > 0) {
+            res.json({ alerts: data.alerts.alert });
+        } else {
+            res.json({ alerts: [] });
         }
-
-        const response = await notificationService.createAlert(req.body);
-        res.status(201).json(response);
     } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-};
-
-// Deactivate an alert
-export const deactivateAlert = async (req, res) => {
-    try {
-        const { alertId } = req.params;
-
-        if (!alertId) {
-            return res.status(400).json({ error: "Alert ID is required" });
-        }
-
-        const response = await notificationService.deactivateAlert(alertId);
-        res.status(200).json(response);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-};
-
-// Get alerts by route
-export const getAlertsByRoute = async (req, res) => {
-    try {
-        const { routeId } = req.params;
-
-        if (!routeId) {
-            return res.status(400).json({ error: "Route ID is required" });
-        }
-
-        const alerts = await notificationService.getAlertsByRoute(routeId);
-        res.status(200).json(alerts);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(error.message);
+        res.status(500).json({ error: "Failed to fetch weather alerts" });
     }
 };
