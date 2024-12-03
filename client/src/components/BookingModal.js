@@ -1,17 +1,19 @@
 import React from 'react';
 import { Modal, Box, Typography, Button } from '@mui/material';
-import Collapsible from 'react-collapsible';
-import DatePicker from './DatePicker'; // Assuming DatePicker is your custom date picker component.
-import AddToCalendar from './AddToCalendar';
+import DatePicker from './DatePicker'; 
+import 'add-to-calendar-button';
 
 function BookingModal({
   Modalopen,
   setOpen,
   handleConfirmBooking,
-  handleEstimate,
   handleDateChange,
   selectedDate,
 }) {
+  const formatDate = (date) => {
+    if (!date) return '';
+    return date.toISOString().split('T')[0];
+  };
   return (
     <Modal open={Modalopen} onClose={() => setOpen(false)}>
       <Box
@@ -39,17 +41,15 @@ function BookingModal({
           Confirm Booking
         </Button>
 
-        <AddToCalendar></AddToCalendar>
+        <add-to-calendar-button
+          name="[Reminder] Test the Add to Calendar Button"
+          startDate={formatDate(selectedDate)}
+          location="World Wide Web"
+          description="Check out the maybe easiest way to include Add to Calendar Buttons to your web projects:[br]→ [url]https://add-to-calendar-button.com/|Click here![/url]"
+          options="'Apple','Google','iCal','Outlook.com','Microsoft 365','Microsoft Teams','Yahoo'"
+          lightMode="bodyScheme"
+        ></add-to-calendar-button>
 
-        {/* Fare Estimation Section */}
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={handleEstimate}
-            sx={{ width: '100%' }}
-          >
-            Get Fare Estimate
-          </Button>
       </Box>
     </Modal>
   );

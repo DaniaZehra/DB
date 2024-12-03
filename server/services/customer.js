@@ -51,11 +51,14 @@ class Customer extends User {
 
         const baseURL = 'https://maps.googleapis.com/maps/api/directions/json';
 
+        const origin_m = origin + ', Karachi';
+        const destination_m = destination + ', Karachi';
+
         try {
             const response = await axios.get(baseURL, {
                 params: {
-                    origin: origin,
-                    destination: destination,
+                    origin: origin_m,
+                    destination: destination_m,
                     departure_time: 'now',
                     traffic_model: 'best_guess',
                     key: API_KEY,

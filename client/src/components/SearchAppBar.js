@@ -6,7 +6,6 @@ import Button from '@mui/material/Button'
 import Card from '@mui/material/Card';
 import Cookies from 'js-cookie'
 import { CardContent } from '@mui/material';
-import DatePicker from './DatePicker';
 import {Stack} from '@mui/material'
 import {Collapse} from '@mui/material';
 import Toolbar from '@mui/material/Toolbar';
@@ -22,7 +21,6 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import Modal from '@mui/material/Modal';
 import Drawer from '@mui/material/Drawer';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
@@ -31,11 +29,9 @@ import ListItemText from '@mui/material/ListItemText';
 import Divider from '@mui/material/Divider';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import { Unstable_Popup as BasePopup } from '@mui/base';
-import Collapsible from 'react-collapsible';
-import Form from 'react-bootstrap/Form';
-import { Row, FloatingLabel } from 'react-bootstrap';
 import BookingModal from './BookingModal'; 
-
+import FareEstimation from './FareEstimationPopUp'
+import TrafficUpdate from './TrafficUpdatePopUp';
 
 
 const Search = styled('div')(({ theme }) => ({
@@ -235,8 +231,8 @@ export default function NavigationAppBar() {
   
   };
   const handleSubmit = async (ride,date) =>{
-
-    const formattedDate = new Date(selectedDate).toISOString().split('T')[0];
+    const selectedDate = new Date(date);
+    const formattedDate = selectedDate.toISOString().split('T')[0];
     const Data = {
       cust_id:parseInt(Cookies.get('userId'),10),
       route_id:ride.route_id,
@@ -255,13 +251,14 @@ export default function NavigationAppBar() {
       const result = response.json();
       console.log("Response status:", result.status);
       console.log("Response Body",response);
-      if(result.created){
+      if(result.ok){
         alert("This Works");
       }
     }
     catch(err){
       alert("Error in booking ride");
     }
+
   };
   const handleOpenModal = (route) => {
     alert(route.stops);
@@ -274,43 +271,14 @@ export default function NavigationAppBar() {
     }
   };
 
-  //Fare Estimation
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  }
-
-  const handleEstimate = async() => {
-    try{
-      const response = await fetch(`${process.env.REACT_APP_BASE_URL}/customer/estimate-fare`,
-        {
-          method:'POST',
-          headers:{'Content-type':`application/json`},
-          body: JSON.stringify({
-            "origin":selectedDate.origin,
-            "destination":selectedDate.destination
-          })
-        }
-      )
-      const result = response.json();
-      console.log(JSON.stringify({
-        "origin":selectedDate.origin,
-        "destination":selectedDate.destination
-      }));
-      console.log("Response status:", result.status);
-      console.log("Response Body",response);
-      if(result.ok){
-        const data = await result.json();
-        alert(data.estimatedFare);
-      }
-    }
-    catch(error){
-      alert(error.message);
-    }
-  }
 
   const handleConfirmBooking = () => {
     alert("handleConfirmBooking");
+    if(selectedDate<new Date()){
+      alert("please select a valid date");
+      console.log(selectedDate);
+      return;
+    }
     alert(selectedRoute);
     alert(selectedDate);
     if (selectedRoute) {
@@ -403,7 +371,7 @@ export default function NavigationAppBar() {
           >
             <EmojiEventsIcon />
             <BasePopup id={id} open={open} anchor={anchor}>
-              <PopupBody>The content of the Popup.</PopupBody>
+              <PopupBody>120 loyalty points!.</PopupBody>
             </BasePopup>
           </IconButton>
   
@@ -499,17 +467,16 @@ export default function NavigationAppBar() {
       )}
     </List>
         )}
-  
+        <FareEstimation></FareEstimation>
+        <TrafficUpdate></TrafficUpdate>
         <BookingModal
         Modalopen={Modalopen}
         setOpen={setOpen}
         selectedRoute={selectedRoute}
         handleConfirmBooking={handleConfirmBooking}
-        handleEstimate={handleEstimate}
         handleDateChange={handleDateChange}
         formData={formData}
         setFormData={setFormData}
-        handleChange={handleChange}
         selectedDate={selectedDate}
       />
 
