@@ -42,7 +42,7 @@ function BookingModal({
         </Button>
 
         <add-to-calendar-button
-          name="[Reminder] Test the Add to Calendar Button"
+          name="[Reminder] Add Booking Date to Calendar"
           startDate={formatDate(selectedDate)}
           location="World Wide Web"
           description="Check out the maybe easiest way to include Add to Calendar Buttons to your web projects:[br]→ [url]https://add-to-calendar-button.com/|Click here![/url]"

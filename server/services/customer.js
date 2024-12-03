@@ -133,7 +133,7 @@ class Customer extends User {
     }
     
 
-    static async updateCustomerDetails(custId, updates) {
+    static async updateCustomerDetails(cust_id, updates) {
         try {
             const fieldMap = {
                 'First Name': 'first_name',
@@ -162,14 +162,14 @@ class Customer extends User {
                         SET password = ?, updated_at = NOW()
                         WHERE cust_id = ?
                     `;
-                    await db.query(updatePasswordQuery, [hashedPassword, custId]);
+                    await db.query(updatePasswordQuery, [hashedPassword, cust_id]);
                 } else {
                     const updateFieldQuery = `
                         UPDATE customer
                         SET ${dbColumn} = ?, updated_at = NOW()
                         WHERE cust_id = ?
                     `;
-                    await db.query(updateFieldQuery, [updates[key], custId]);
+                    await db.query(updateFieldQuery, [updates[key], cust_id]);
                 }
             }
 
@@ -178,7 +178,7 @@ class Customer extends User {
                 FROM customer
                 WHERE cust_id = ?
             `;
-            const result = await db.query(selectQuery, [custId]);
+            const result = await db.query(selectQuery, [cust_id]);
 
             if (result.length === 0) {
                 throw new Error('Customer not found or no changes made.');
@@ -227,11 +227,19 @@ class Customer extends User {
           throw error;
         }
     }
-
-    static async deleteCustomer(custId) {
+    static async getLoyaltyPoints(cust_id){
+        try {
+            const loyalty_points = await db.query('select loyalty_points from customer where cust_id = ?', [cust_id]);
+            return loyalty_points;
+        } catch(error){
+            console.error('Error fetching loyalty points', error.message);
+            throw error;
+        }
+    }
+    static async deleteCustomer(cust_id) {
         try {
             const deleteCustomerQuery = 'DELETE FROM customer WHERE cust_id = ?';
-            await db.query(deleteCustomerQuery, [custId]);
+            await db.query(deleteCustomerQuery, [cust_id]);
 
             console.log('Customer and associated data deleted successfully.');
         } catch (error) {

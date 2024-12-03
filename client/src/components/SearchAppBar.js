@@ -27,11 +27,10 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import Divider from '@mui/material/Divider';
-import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
-import { Unstable_Popup as BasePopup } from '@mui/base';
 import BookingModal from './BookingModal'; 
 import FareEstimation from './FareEstimationPopUp'
 import TrafficUpdate from './TrafficUpdatePopUp';
+import LoyaltyPoints from './LoyaltyPoints';
 
 
 const Search = styled('div')(({ theme }) => ({
@@ -84,9 +83,7 @@ export default function NavigationAppBar() {
   const [isListening, setIsListening] = useState(false);
   const [anchor, setAnchor] = React.useState(null);
   const [Modalopen, setOpen] = useState(false);
-  const [selectedRide, setSelectedRide] = useState(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [startDate, setStartDate] = useState(new Date());
   const [selectedRoute, setSelectedRoute] = useState(null);
   const [expandedRoute, setExpandedRoute] = useState(null);
   const [formData, setFormData] = useState({
@@ -175,9 +172,7 @@ export default function NavigationAppBar() {
     { text: 'View Routes', path: '/' },
     { text: 'Book Ride', path: '/profile' },
   ];
-  const handleLoyaltyOpen = (event) => {
-    setAnchor(anchor ? null : event.currentTarget);
-  };
+
   const open = Boolean(anchor);
   const id = open ? 'simple-popper' : undefined;
   const handleKeyDown = async (e) => {
@@ -363,23 +358,14 @@ export default function NavigationAppBar() {
   
         {/* Icons on the Right */}
         <Box sx={{ display: 'flex' }}>
-          <IconButton
-            size="large"
-            aria-label="view loyalty points"
-            color="inherit"
-            onClick={handleLoyaltyOpen}
-          >
-            <EmojiEventsIcon />
-            <BasePopup id={id} open={open} anchor={anchor}>
-              <PopupBody>120 loyalty points!.</PopupBody>
-            </BasePopup>
-          </IconButton>
   
           <IconButton size="large" aria-label="show notifications" color="inherit">
             <Badge badgeContent={4} color="error">
               <NotificationsIcon />
             </Badge>
           </IconButton>
+
+          <LoyaltyPoints></LoyaltyPoints>
   
           <IconButton
             size="large"
@@ -511,34 +497,3 @@ export default function NavigationAppBar() {
   );
 }
 
-const grey = {
-  50: '#F3F6F9',
-  100: '#E5EAF2',
-  200: '#DAE2ED',
-  300: '#C7D0DD',
-  400: '#B0B8C4',
-  500: '#9DA8B7',
-  600: '#6B7A90',
-  700: '#434D5B',
-  800: '#303740',
-  900: '#1C2025',
-};
-
-const PopupBody = styled('div')(
-  ({ theme }) => `
-  width: max-content;
-  padding: 12px 16px;
-  margin: 8px;
-  border-radius: 8px;
-  border: 1px solid ${theme.palette.mode === 'dark' ? grey[700] : grey[200]};
-  background-color: ${theme.palette.mode === 'dark' ? grey[900] : '#fff'};
-  box-shadow: ${
-    theme.palette.mode === 'dark'
-      ? `0px 4px 8px rgb(0 0 0 / 0.7)`
-      : `0px 4px 8px rgb(0 0 0 / 0.1)`
-  };
-  font-family: 'IBM Plex Sans', sans-serif;
-  font-size: 0.875rem;
-  z-index: 1;
-`,
-);

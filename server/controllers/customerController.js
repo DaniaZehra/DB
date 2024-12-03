@@ -79,14 +79,14 @@ export const estimateFare = async (req, res) => {
 };
 
 export const updateCustomerDetails = async (req, res) => {
-    const { custId, updates } = req.body;
+    const { cust_id, updates } = req.body;
 
     try {
-        if (!custId || !updates || typeof updates !== 'object') {
+        if (!cust_id || !updates || typeof updates !== 'object') {
             return res.status(400).json({ message: 'Customer ID and updates are required' });
         }
 
-        const updatedCustomer = await Customer.updateCustomerDetails(custId, updates);
+        const updatedCustomer = await Customer.updateCustomerDetails(cust_id, updates);
         res.status(200).json({ message: 'Customer details updated successfully', updatedCustomer });
     } catch (error) {
         console.error('Error updating customer details:', error);
@@ -95,14 +95,14 @@ export const updateCustomerDetails = async (req, res) => {
 };
 
 export const deleteCustomer = async (req, res) => {
-    const { custId } = req.body;
+    const { cust_id } = req.body;
 
     try {
-        if (!custId) {
+        if (!cust_id) {
             return res.status(400).json({ message: 'Customer ID is required' });
         }
 
-        await Customer.deleteCustomer(custId);
+        await Customer.deleteCustomer(cust_id);
         res.status(200).json({ message: 'Customer deleted successfully' });
     } catch (error) {
         console.error('Error deleting customer:', error);
@@ -110,27 +110,28 @@ export const deleteCustomer = async (req, res) => {
     }
 };
 
-export const bookCourier = async (req, res) => {
-    const { customer_id, courier_name } = req.body;
+// export const bookCourier = async (req, res) => {
+//     const { customer_id, courier_name } = req.body;
 
-    try {
-        if (!customer_id || !courier_name) {
-            return res.status(400).json({ message: 'Customer ID and courier name are required' });
-        }
+//     try {
+//         if (!customer_id || !courier_name) {
+//             return res.status(400).json({ message: 'Customer ID and courier name are required' });
+//         }
 
-        await Customer.BookCourier(customer_id, courier_name);
-        res.status(201).json({ message: 'Courier booked successfully' });
-    } catch (error) {
-        console.error('Error booking courier:', error);
-        res.status(500).json({ message: 'Internal server error' });
-    }
-};
+//         await Customer.BookCourier(customer_id, courier_name);
+//         res.status(201).json({ message: 'Courier booked successfully' });
+//     } catch (error) {
+//         console.error('Error booking courier:', error);
+//         res.status(500).json({ message: 'Internal server error' });
+//     }
+// };
+
 
 export const bookRide = async (req, res) => {
     try {
       const { cust_id, route_id, rideDate } = req.body;
       if (!cust_id || !route_id || !rideDate) {
-        return res.status(400).json({ message: 'Missing required fields: custId, routeId, or rideDate.' });
+        return res.status(400).json({ message: 'Missing required fields: cust_id, routeId, or rideDate.' });
       }
       const bookingResult = await Customer.bookRide(cust_id, route_id, rideDate);
       console.log(bookingResult);
@@ -154,3 +155,14 @@ export const bookRide = async (req, res) => {
     }
   };
 
+  export const getLoyaltyPoints = async(req, res) => {
+    try {
+        const {cust_id} = req.body;
+        const loyalty_points = await Customer.getLoyaltyPoints(cust_id);
+        console.log(loyalty_points);
+        res.status(200).json({ "loyalty_points":loyalty_points });
+    } catch (error) {
+        console.error('Error fetching loyalty-points:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+  }
