@@ -86,13 +86,31 @@ export const updateCustomerDetails = async (req, res) => {
             return res.status(400).json({ message: 'Customer ID and updates are required' });
         }
 
-        const updatedCustomer = await Customer.updateCustomerDetails(cust_id, updates);
-        res.status(200).json({ message: 'Customer details updated successfully', updatedCustomer });
+        const { first_name, last_name, cust_email, password } = updates;
+
+        if (first_name) {
+            await Customer.updateFirstName(cust_id, first_name);
+        }
+
+        if (last_name) {
+            await Customer.updateLastName(cust_id, last_name);
+        }
+
+        if (cust_email) {
+            await Customer.updateEmail(cust_id, cust_email);
+        }
+
+        if (password) {
+            await Customer.updatePassword(cust_id, password);
+        }
+
+        return res.status(200).json({ message: 'Customer details updated successfully' });
     } catch (error) {
-        console.error('Error updating customer details:', error);
-        res.status(500).json({ message: 'Internal server error' });
+        console.error('Error updating customer details:', error.message);
+        return res.status(500).json({ message: 'Internal server error' });
     }
 };
+
 
 export const deleteCustomer = async (req, res) => {
     const { cust_id } = req.body;
@@ -165,4 +183,42 @@ export const bookRide = async (req, res) => {
         console.error('Error fetching loyalty-points:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
-  }
+}
+
+export const fetchBookings = async(req,res)=>{
+    try{
+        const {cust_id} = req.body;
+        const result = await Customer.fetchBookings(cust_id);
+        res.status(200).json({result});
+    }catch(error){
+        console.error('Error in controller:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
+export const fetchCustomerDetails = async(req,res)=>{
+    try{
+        const {cust_id} = req.body;
+        const result = await Customer.fetchCustomerDetails(cust_id);
+        res.status(200).json({result});
+    }catch(error){
+        console.error('Error in controller:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
+export const submitFeedback = async (req, res) => {
+    const { booking_id, comments, rating } = req.body;
+
+    // Input validation
+    if (!booking_id || !comments || typeof rating !== 'number' || rating < 1 || rating > 5) {
+        return res.status(400).json({ success: false, message: 'Invalid input data' });
+    }
+
+    try {
+        const feedback = await Customer.submitFeedback(booking_id, comments, rating);
+        res.status(200).json({ success: true, message: 'Feedback submitted successfully', data: feedback.data });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+}

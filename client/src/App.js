@@ -7,6 +7,7 @@ import NavigationAppBar from './components/SearchAppBar';
 import Dashboard from './transporter/dashboard';
 import LandingPage from './landing-page/landing-page';
 import AdminDashboard from './admin/adminDashboard';
+import ProfilePage from './components/ProfilePage';
 import './App.css';
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
     <Route path="/navigation-app-bar" element={<NavigationAppBar />} />
     <Route path="/dashboard" element={<Dashboard />} />
     <Route path="/admin" element={<AdminDashboard />} />
+    <Route path="/customer-profile-page" element={<ProfilePage/>}/>
     </Routes>
     </Router> 
   )

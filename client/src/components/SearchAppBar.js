@@ -173,8 +173,6 @@ export default function NavigationAppBar() {
     { text: 'Book Ride', path: '/profile' },
   ];
 
-  const open = Boolean(anchor);
-  const id = open ? 'simple-popper' : undefined;
   const handleKeyDown = async (e) => {
     if (e.key === 'Enter') {
       try {
@@ -280,6 +278,14 @@ export default function NavigationAppBar() {
       handleSubmit(selectedRoute, selectedDate); // Pass date to the submission handler
       setOpen(false);
     }
+  };
+
+  //profile Menu
+  const handleProfilePage = () =>{
+    window.location.href = '/customer-profile-page'
+  };
+  const handleLogOut = () =>{
+
   };
 
   return (<Box sx={{ flexGrow: 1 }}>
@@ -489,9 +495,8 @@ export default function NavigationAppBar() {
         horizontal: 'right',
       }}
     >
-      <MenuItem onClick={handleProfileMenuClose}>Profile</MenuItem>
-      <MenuItem onClick={handleProfileMenuClose}>My Account</MenuItem>
-      <MenuItem onClick={handleProfileMenuClose}>Logout</MenuItem>
+      <MenuItem onClick={handleProfilePage}>Profile</MenuItem>
+      <MenuItem onClick={handleLogOut}>Logout</MenuItem>
     </Menu>
   </Box>
   );

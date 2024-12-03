@@ -132,65 +132,71 @@ class Customer extends User {
         }
     }
     
-
-    static async updateCustomerDetails(cust_id, updates) {
+    static async updateFirstName(cust_id, first_name) {
         try {
-            const fieldMap = {
-                'First Name': 'first_name',
-                'Last Name': 'last_name',
-                'Email': 'cust_email',
-                'Phone Number': 'phone_number',
-                'Username': 'username',
-                'Password': 'password',
-            };
-
-            const updateKeys = Object.keys(updates).filter(key => fieldMap[key]);
-
-            if (updateKeys.length === 0) {
-                throw new Error('No valid fields to update.');
-            }
-
-            for (const key of updateKeys) {
-                const dbColumn = fieldMap[key];
-
-                if (dbColumn === 'password') {
-                    const saltRounds = 10;
-                    const hashedPassword = await bcrypt.hash(updates[key], saltRounds);
-
-                    const updatePasswordQuery = `
-                        UPDATE customer
-                        SET password = ?, updated_at = NOW()
-                        WHERE cust_id = ?
-                    `;
-                    await db.query(updatePasswordQuery, [hashedPassword, cust_id]);
-                } else {
-                    const updateFieldQuery = `
-                        UPDATE customer
-                        SET ${dbColumn} = ?, updated_at = NOW()
-                        WHERE cust_id = ?
-                    `;
-                    await db.query(updateFieldQuery, [updates[key], cust_id]);
-                }
-            }
-
-            const selectQuery = `
-                SELECT cust_id, first_name, last_name, cust_email, phone_number, username, updated_at
-                FROM customer
+            const query = `
+                UPDATE customer
+                SET first_name = ?, updated_at = NOW()
                 WHERE cust_id = ?
             `;
-            const result = await db.query(selectQuery, [cust_id]);
-
-            if (result.length === 0) {
-                throw new Error('Customer not found or no changes made.');
-            }
-
-            console.log('Customer details updated successfully:', result[0]);
-            return result[0];
+            await db.query(query, [first_name, cust_id]);
+            console.log(`First name updated successfully for customer ID: ${cust_id}`);
         } catch (error) {
-            console.error('Error updating customer details:', error.message);
+            console.error('Error updating first name:', error.message);
             throw error;
         }
     }
+    
+    static async updateLastName(cust_id, last_name) {
+        try {
+            const query = `
+                UPDATE customer
+                SET last_name = ?, updated_at = NOW()
+                WHERE cust_id = ?
+            `;
+            await db.query(query, [last_name, cust_id]);
+            console.log(`Last name updated successfully for customer ID: ${cust_id}`);
+        } catch (error) {
+            console.error('Error updating last name:', error.message);
+            throw error;
+        }
+    }
+    
+    static async updateEmail(cust_id, cust_email) {
+        try {
+            const query = `
+                UPDATE customer
+                SET cust_email = ?, updated_at = NOW()
+                WHERE cust_id = ?
+            `;
+            await db.query(query, [cust_email, cust_id]);
+            console.log(`Email updated successfully for customer ID: ${cust_id}`);
+        } catch (error) {
+            console.error('Error updating email:', error.message);
+            throw error;
+        }
+    }
+    
+    static async updatePassword(cust_id, password) {
+        try {
+            const saltRounds = 10;
+            const hashedPassword = await bcrypt.hash(password, saltRounds);
+    
+            const query = `
+                UPDATE customer
+                SET password = ?, updated_at = NOW()
+                WHERE cust_id = ?
+            `;
+            await db.query(query, [hashedPassword, cust_id]);
+            console.log(`Password updated successfully for customer ID: ${cust_id}`);
+        } catch (error) {
+            console.error('Error updating password:', error.message);
+            throw error;
+        }
+    }
+    
+
+
 
     static async bookRide(cust_id, route_id, rideDate) {
         try {
@@ -227,6 +233,7 @@ class Customer extends User {
           throw error;
         }
     }
+
     static async getLoyaltyPoints(cust_id){
         try {
             const loyalty_points = await db.query('select loyalty_points from customer where cust_id = ?', [cust_id]);
@@ -236,15 +243,53 @@ class Customer extends User {
             throw error;
         }
     }
+
     static async deleteCustomer(cust_id) {
         try {
             const deleteCustomerQuery = 'DELETE FROM customer WHERE cust_id = ?';
-            await db.query(deleteCustomerQuery, [cust_id]);
+            deleteResult = await db.query(deleteCustomerQuery, [cust_id]);
 
             console.log('Customer and associated data deleted successfully.');
+            return deleteResult;
         } catch (error) {
             console.error('Error deleting customer:', error.message);
             throw error;
+        }
+    }
+
+    static async fetchBookings(cust_id){
+        try{
+           const bookings = await db.query('select * from bookings where cust_id = ? and ride_date<sysdate()',[cust_id]);
+           console.log(bookings);
+           return bookings;
+        }catch (error){
+            console.error('Error fetching bookings', error.message);
+            throw error;
+        }
+    }
+
+    static async fetchCustomerDetails(cust_id){
+        try{
+            const details = await db.query('select * from customer where cust_id = ?',[cust_id]);
+            console.log(details);
+           return details;
+        }catch(error){
+            console.error('Error fetching details', error.message);
+            throw error;
+        }
+    }
+
+    static async submitFeedback(bookingId, comments, rating) {
+        try {
+            // Mock database interaction (replace this with actual DB query)
+            const result = await db.query(
+                'INSERT INTO feedback (booking_id, comments, rating) VALUES (?, ?, ?)',
+                [bookingId, comments, rating]
+            );
+            return { success: true, data: result };
+        } catch (error) {
+            console.error('Error submitting feedback:', error);
+            throw new Error('Failed to submit feedback');
         }
     }
 }
