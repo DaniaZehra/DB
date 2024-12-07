@@ -8,6 +8,7 @@ import authRoutes from './routes/authRoutes.js';
 import authMiddleware from './middleware/authmiddleware.js';
 import searchRoutes from './routes/searchRoutes.js'
 import routeRoutes from './routes/routeRoutes.js';
+import vehicleRoutes from './routes/vehicleRoutes.js'
 import customerRoutes from './routes/customerRoutes.js';
 import WeatherApiService from './services/notificationsWeather.js';
 import TransportRoutes from './routes/transporterRoutes.js';
@@ -47,6 +48,7 @@ app.use('/api/weather', NotificationRoutes);
 app.use('/customer', customerRoutes);
 app.use('/transporter',TransportRoutes);
 app.use('/admin', adminRoutes);
+app.use('/vehicle',vehicleRoutes);
 app.use("/alerts", NotificationRoutes);
 
 

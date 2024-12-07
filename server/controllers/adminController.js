@@ -29,3 +29,13 @@ export const deleteAdmin = async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 };
+
+export const createNewAdmin = async(req,res)=> {
+    const {username, password} = req.body;
+    try {
+        res = await AdminService.createAdmin(username, password);
+        console.log(res.message); // Admin created successfully
+    } catch (error) {
+        console.error(error.message); // Handle errors (e.g., Username already exists)
+    }
+}

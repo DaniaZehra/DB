@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Row, Col, Button } from 'react-bootstrap';
+import MapDisplay from './MapDisplay';
 
 const FareEstimation = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -163,6 +164,9 @@ const FareEstimation = () => {
                 {message.content}
               </div>
             ))}
+            {origin && destination && (
+  <MapDisplay origin={origin} destination={destination} />
+)}
             {isTyping && <div style={styles.message.bot}>...</div>}
             <p>Enter your Origin and Destination to get a fare estimate:</p>
             <Row>

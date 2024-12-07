@@ -196,6 +196,17 @@ export const fetchBookings = async(req,res)=>{
     }
 }
 
+export const fetchCurrentBookings = async(req,res)=>{
+    try{
+        const {cust_id} = req.body;
+        const result = await Customer.fetchCurrentBookings(cust_id);
+        res.status(200).json({result});
+    }catch(error){
+        console.error('Error in controller:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
 export const fetchCustomerDetails = async(req,res)=>{
     try{
         const {cust_id} = req.body;

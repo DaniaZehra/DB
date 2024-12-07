@@ -1,4 +1,4 @@
-import Vehicle from '../services/vehicleService.js';
+import Vehicle from '../services/vehicle.js';
 
 export const addVehicle = async (req, res) => {
   try {

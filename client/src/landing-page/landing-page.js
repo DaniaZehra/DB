@@ -26,7 +26,10 @@ const LandingPage = () => {
       <Container maxWidth="sm">
         <Box textAlign="center" py={5}>
           <Typography variant="h3" gutterBottom style={{}}>
-            Welcome to Our Service
+            Welcome to UrbanHub
+          </Typography>
+          <Typography variant="h4" gutterBottom style={{}} color="#52a2b4">
+            Bridging Distances
           </Typography>
           <Typography variant="subtitle1" gutterBottom color='#1e1e1e'>
             Sign in or sign up to get started
@@ -57,8 +60,8 @@ const LandingPage = () => {
 
             <Grid2 item xs={12}>
               <Button
-                variant="outlined"
-                color="primary"
+                variant="contained"
+                color="secondary"
                 fullWidth
                 onClick={handleTransporterSignUp}
               >

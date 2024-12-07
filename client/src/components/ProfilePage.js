@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Container, Typography, Card, CardContent, CircularProgress, Button } from '@mui/material';
 import Cookies from 'js-cookie';
 import DisplayPastBookings from './ProfilePageBookings';
+import DisplayCurrentBookings from './ProfilePageFutureBookings';
 
 const CustomerDetails = () => {
     const [customer, setCustomer] = useState(null);
@@ -82,6 +83,9 @@ const CustomerDetails = () => {
         </Container>
         <Container>
             <DisplayPastBookings></DisplayPastBookings>
+        </Container>
+        <Container>
+            <DisplayCurrentBookings></DisplayCurrentBookings>
         </Container>
         </div>
     );

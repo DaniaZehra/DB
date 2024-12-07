@@ -268,6 +268,17 @@ class Customer extends User {
         }
     }
 
+    static async fetchCurrentBookings(cust_id){
+        try{
+           const bookings = await db.query('select * from bookings where cust_id = ? and ride_date>=sysdate()',[cust_id]);
+           console.log(bookings);
+           return bookings;
+        }catch (error){
+            console.error('Error fetching bookings', error.message);
+            throw error;
+        }
+    }
+
     static async fetchCustomerDetails(cust_id){
         try{
             const details = await db.query('select * from customer where cust_id = ?',[cust_id]);

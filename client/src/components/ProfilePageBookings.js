@@ -6,7 +6,7 @@ import { Button,Box,
     TextField,Typography } from '@mui/material';
 import Cookies from 'js-cookie';
 
-const DisplayPastBookings = () => {
+const DisplayCurrentBookings = () => {
     const [bookings, setBookings] = useState([]);
     const [selectedBookingId, setSelectedBookingId] = useState('');
     const [loading, setLoading] = useState(false);
@@ -44,7 +44,6 @@ const DisplayPastBookings = () => {
         }
     };
 
-    //handle Feedback
 
     const handleOpen = (bookingId) => {
         setSelectedBookingId(bookingId);
@@ -189,4 +188,4 @@ const DisplayPastBookings = () => {
     );
 };
 
-export default DisplayPastBookings;
+export default DisplayCurrentBookings;

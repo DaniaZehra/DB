@@ -499,7 +499,6 @@ export default function NavigationAppBar() {
       }}
     >
       <MenuItem onClick={handleProfilePage}>Profile</MenuItem>
-      <MenuItem onClick={handleLogOut}>Logout</MenuItem>
     </Menu>
     <WeatherAlerts></WeatherAlerts>
   </Box>

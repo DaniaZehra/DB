@@ -16,16 +16,15 @@ import {
 function AdminDashboard() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [newAdmin, setNewAdmin] = useState({ username: '', password: '' });
   const [updates, setUpdates] = useState({ username: '', password: '' });
   const [message, setMessage] = useState('');
   const [showDialog, setShowDialog] = useState(false);
 
-  const API_BASE_URL = `${process.env.REACT_APP_BASE_URL}/admin`;
-
   // Sign-in function
   const handleSignin = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/signin`, {
+      const response = await fetch(`${process.env.REACT_APP_BASE_URL}/admin/signin`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -44,10 +43,34 @@ function AdminDashboard() {
     }
   };
 
-  // Update function
+  // Create Admin function
+  const handleCreateAdmin = async () => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BASE_URL}/admin/create`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newAdmin),
+      });
+
+      if (!response.ok) {
+        throw new Error(await response.text());
+      }
+      const data = await response.json();
+      console.log('Admin created successfully:', data);  // Check if this line is reached
+      alert("Admin created");
+      setMessage(`Admin created successfully! Admin ID: ${data.adminId}`);
+      
+    } catch (error) {
+      setMessage(error.message || 'Failed to create admin');
+    }
+  };
+
+  // Update Admin function
   const handleUpdate = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/update`, {
+      const response = await fetch(`${process.env.REACT_APP_BASE_URL}/admin/update`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -66,10 +89,10 @@ function AdminDashboard() {
     }
   };
 
-  // Delete function (with confirmation dialog)
+  // Delete Admin function
   const handleDelete = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/delete`, {
+      const response = await fetch(`${process.env.REACT_APP_BASE_URL}/admin/delete`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -96,7 +119,10 @@ function AdminDashboard() {
         Admin Dashboard
       </Typography>
 
-      {/* Sign-in form */}
+      {/* Sign-in form
+      <Typography variant="h6" gutterBottom>
+        Sign In
+      </Typography>
       <Stack spacing={2} sx={{ mb: 3 }}>
         <TextField
           label="Username"
@@ -112,9 +138,30 @@ function AdminDashboard() {
         <Button variant="contained" onClick={handleSignin}>
           Sign In
         </Button>
+      </Stack> */}
+
+      {/* Create Admin form */}
+      <Typography variant="h6" gutterBottom>
+        Create Admin
+      </Typography>
+      <Stack spacing={2} sx={{ mb: 3 }}>
+        <TextField
+          label="New Admin Username"
+          value={newAdmin.username}
+          onChange={(e) => setNewAdmin({ ...newAdmin, username: e.target.value })}
+        />
+        <TextField
+          label="New Admin Password"
+          type="password"
+          value={newAdmin.password}
+          onChange={(e) => setNewAdmin({ ...newAdmin, password: e.target.value })}
+        />
+        <Button variant="contained" color="primary" onClick={handleCreateAdmin}>
+          Create Admin
+        </Button>
       </Stack>
 
-      {/* Update form */}
+      {/* Update Admin form */}
       <Typography variant="h6" gutterBottom>
         Update Admin Details
       </Typography>
@@ -135,7 +182,7 @@ function AdminDashboard() {
         </Button>
       </Stack>
 
-      {/* Delete button */}
+      {/* Delete Admin button */}
       <Button variant="outlined" color="error" onClick={() => setShowDialog(true)}>
         Delete Admin
       </Button>

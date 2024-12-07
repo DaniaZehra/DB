@@ -8,6 +8,7 @@ import Dashboard from './transporter/dashboard';
 import LandingPage from './landing-page/landing-page';
 import AdminDashboard from './admin/adminDashboard';
 import ProfilePage from './components/ProfilePage';
+import AdminSignIn from './admin/adminSign-In';
 import './App.css';
 
 function App() {
@@ -20,7 +21,8 @@ function App() {
     <Route path="/sign-up-transporter" element={<SignUpTransporter/>}/>
     <Route path="/navigation-app-bar" element={<NavigationAppBar />} />
     <Route path="/dashboard" element={<Dashboard />} />
-    <Route path="/admin" element={<AdminDashboard />} />
+    <Route path="/admin" element={<AdminSignIn />} />
+    <Route path="/adminDashboard" element={<AdminDashboard/>}/>
     <Route path="/customer-profile-page" element={<ProfilePage/>}/>
     </Routes>
     </Router> 

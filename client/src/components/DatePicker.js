@@ -36,7 +36,7 @@ function DatePicker({ onDateChange }) {
 
       <select value={year} onChange={e => setYear(e.target.value)}>
         <option value="">Year</option>
-        {generateOptions(2023, 2024)}
+        {generateOptions(2024,2024)}
       </select>
     </div>
   );

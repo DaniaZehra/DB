@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Row, Col, Button } from 'react-bootstrap';
-
+import MapDisplay from './MapDisplay';
 const TrafficUpdate = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [origin, setOrigin] = useState('');
@@ -41,6 +41,10 @@ const TrafficUpdate = () => {
         destination: destination,
       });
 
+      if(!traffic_updates.ok){
+        alert("error occurred",traffic_updates.status);
+        return;
+      }
       const result = await traffic_updates.json();
       console.log('Response status:', traffic_updates.status);
       console.log('Full Response:', result);
@@ -167,6 +171,9 @@ const TrafficUpdate = () => {
                 {message.content}
               </div>
             ))}
+            {origin && destination && (
+  <MapDisplay origin={origin} destination={destination} />
+)}         
             {isTyping && <div style={styles.message.bot}>...</div>}
             <p>Enter your Origin and Destination to get traffic updates:</p>
             <Row>
