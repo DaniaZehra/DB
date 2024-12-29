@@ -41,21 +41,28 @@ class Transporter extends User{
     }
     static async viewAnalytics(transporterId) {
         const query = `
-            SELECT 
-                t.transporter_id,
-                IFNULL(SUM(b.price), 0) AS profit,  -- Sum of prices for profit
-                IFNULL(AVG(f.rating), 0) AS average_rating,  -- Average rating
-                IFNULL(SUM(b.price), 0) AS total_revenue  -- Total revenue (same as profit in this case)
-            FROM 
-                transporter t
-            LEFT JOIN 
-                bookings b ON b.transporter_id = t.transporter_id
-            LEFT JOIN 
-                feedback f ON f.feedback_id = b.booking_id  -- Correct join using booking_id
-            WHERE 
-                t.transporter_id = ? 
-            GROUP BY 
-                t.transporter_id;
+        SELECT 
+            t.transporter_id,
+            IFNULL(SUM(b.price), 0) AS profit,  -- Sum of prices for profit
+            IFNULL(AVG(f.rating), 0) AS average_rating,  -- Average rating
+            IFNULL(SUM(b.price), 0) AS total_revenue,  -- Total revenue
+            IFNULL(COUNT(b.booking_id), 0) AS total_bookings,  -- Total number of bookings
+            SUM(CASE WHEN b.ride_date < sysdate() THEN 1 ELSE 0 END) AS completed_bookings,  -- Completed bookings
+            SUM(CASE WHEN b.ride_date >= sysdate() THEN 1 ELSE 0 END) AS pending_bookings,  -- Pending bookings
+            IFNULL(SUM(b.price) / NULLIF(COUNT(b.booking_id), 0), 0) AS revenue_per_booking,  -- Revenue per booking
+            SUM(CASE WHEN f.rating >= 4 THEN 1 ELSE 0 END) AS positive_feedback,  -- Positive feedback
+            SUM(CASE WHEN f.rating < 3 THEN 1 ELSE 0 END) AS negative_feedback  -- Negative feedback
+        FROM 
+            transporter t
+        LEFT JOIN 
+            bookings b ON b.transporter_id = t.transporter_id
+        LEFT JOIN 
+            feedback f ON f.feedback_id = b.booking_id
+        WHERE 
+            t.transporter_id = ? 
+        GROUP BY 
+            t.transporter_id;
+
         `;
 
         try {

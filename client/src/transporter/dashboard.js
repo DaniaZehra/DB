@@ -15,7 +15,6 @@ import {
   TextField,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import Cookies from "js-cookie";
 import "./dashboard.css";
 import AnalyticsCard from "./analyticsComponent";
 
@@ -57,7 +56,7 @@ const handleFormSubmit = async () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
-          transporter_id:Cookies.get("userId")
+          transporter_id:sessionStorage.getItem('userId'),
         }),
         credentials: "include",
       }
@@ -85,7 +84,7 @@ const handleFormSubmit = async () => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             table_name: menuOption,
-            userId: Cookies.get("userId"),
+            userId: sessionStorage.getItem('userId'),
           }),
           credentials: "include",
         }
@@ -163,7 +162,7 @@ const handleFormSubmit = async () => {
   };
 
   return (
-    <div>
+    <div sx={{color:'#44A1A0'}}>
       <div className="CRUD-Container">
         <Box sx={{ p: 3 }}>
           <Typography variant="h4" gutterBottom>
@@ -207,7 +206,7 @@ const handleFormSubmit = async () => {
                         <Button onClick={() => openForm(item.route_id ? "route" : "vehicle", item)}>
                           Update
                         </Button>
-                        <Button variant="contained" color="error" onClick={() => confirmDelete(item)}>
+                        <Button variant="contained" color="error" onClick={() => confirmDelete(item)} sx={{color:'#DFAEB4'}}>
                           Delete
                         </Button>
                       </Stack>

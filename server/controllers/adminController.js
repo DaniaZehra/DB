@@ -39,3 +39,23 @@ export const createNewAdmin = async(req,res)=> {
         console.error(error.message); // Handle errors (e.g., Username already exists)
     }
 }
+export const getAdminActivity = async(req, res) => {
+    try{
+        res = await AdminService.getAdminActivity();
+        console.log(res);
+    }catch (error){
+        console.error(error.message);
+        res.json({message:'error in controller'});
+    }
+}
+
+// export const sendOTPEmail = async(req, res) => {
+//     const {email} = req.body;
+//     try{
+//         const otp = await AdminService.generateOTP();
+//         res = await AdminService.sendOTPEmail(email, otp);
+//     }catch(error){
+//         console.error(error.message);
+//         res.json({message:'error in controller'});
+//     }
+// }

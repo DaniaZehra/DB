@@ -18,4 +18,5 @@ router.put('/bookRide',bookRide);
 router.put('/loyalty-points',getLoyaltyPoints);
 router.post('/submit-feedback', submitFeedback);
 
+
 export default router;

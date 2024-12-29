@@ -4,14 +4,13 @@ import { Button,Box,
     Modal, 
     Rating,
     TextField,Typography } from '@mui/material';
-import Cookies from 'js-cookie';
 
 const DisplayCurrentBookings = () => {
     const [bookings, setBookings] = useState([]);
     const [selectedBookingId, setSelectedBookingId] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const cust_id = parseInt(Cookies.get("userId"));
+    const cust_id = sessionStorage.getItem('userId');
     const [open, setOpen] = useState(false);
     const [comments, setComments] = useState('');
     const [rating, setRating] = useState(0);

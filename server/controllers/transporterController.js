@@ -63,11 +63,12 @@ export const Delete = async(req, res)=>{
     }
 }
 
-export const getAnalytics = (req, res) =>{
+export const getAnalytics = async (req, res) =>{
     const { transporterId } = req.body;
 
     try {
-      const analyticsData = Transporter.viewAnalytics(transporterId);
+      const analyticsData = await Transporter.viewAnalytics(transporterId);
+      console.log(analyticsData)
 
       if (!analyticsData) {
         return res.status(404).json({ message: 'No analytics data found.' });

@@ -9,11 +9,17 @@ function BookingModal({
   handleConfirmBooking,
   handleDateChange,
   selectedDate,
+  selectedRoute,
+  origin,
+  destination,
+  setOrigin,
+  setDestination,
 }) {
   const formatDate = (date) => {
     if (!date) return '';
     return date.toISOString().split('T')[0];
   };
+
   return (
     <Modal open={Modalopen} onClose={() => setOpen(false)}>
       <Box
@@ -31,6 +37,48 @@ function BookingModal({
         {/* Date Picker */}
         <DatePicker onDateChange={handleDateChange} />
 
+        {/*origin and destination picker*/}
+
+        <Typography variant="h6" gutterBottom>
+          Select a Stops for the Ride
+        </Typography>
+        <Box>
+  <select value={origin} onChange={(e) => setOrigin(e.target.value)}>
+    <option value="">Origin</option>
+    {selectedRoute?.stops ? (
+      selectedRoute.stops
+        .split(',') // Convert the string to an array
+        .map((stop, index) => (
+          <option key={index} value={stop.trim()}>
+            {stop.trim()}
+          </option>
+        ))
+    ) : (
+      <option value="" disabled>
+        No stops available
+      </option>
+    )}
+  </select>
+
+  <select value={destination} onChange={(e) => setDestination(e.target.value)}>
+    <option value="">Destination</option>
+    {selectedRoute?.stops ? (
+      selectedRoute.stops
+        .split(',') // Convert the string to an array
+        .map((stop, index) => (
+          <option key={index} value={stop.trim()}>
+            {stop.trim()}
+          </option>
+        ))
+    ) : (
+      <option value="" disabled>
+        No stops available
+      </option>
+    )}
+  </select>
+</Box>
+
+        
         {/* Confirm Booking Button */}
         <Button
           variant="contained"

@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import Cookies from "js-cookie";
 import IconButton from "@mui/material/IconButton";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import { Unstable_Popup as BasePopup } from "@mui/base";
@@ -24,7 +23,7 @@ function LoyaltyPoints() {
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ cust_id: parseInt(Cookies.get("userId"), 10) }),
+          body: JSON.stringify({ cust_id: parseInt(sessionStorage.getItem('userId')) }),
           credentials: "include",
         }
       );

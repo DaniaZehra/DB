@@ -47,7 +47,7 @@ class Customer extends User {
     }
 
     static async getTrafficUpdates(origin, destination) {
-        const API_KEY = 'AIzaSyD3X0SjDZocXb0C9TCtl9xdebH8MyjIwnI';
+        const API_KEY = process.env.GOOGLE_MAP_API_KEY;
 
         const baseURL = 'https://maps.googleapis.com/maps/api/directions/json';
 
@@ -90,7 +90,7 @@ class Customer extends User {
     }
 
     static async estimateFare(origin, destination) {
-        const apiKey = 'AIzaSyD3X0SjDZocXb0C9TCtl9xdebH8MyjIwnI';
+        const apiKey = process.env.GOOGLE_MAP_API_KEY;
         const baseFare = 120;
         const costPerKm = 40;
         const costPerMin = 2;
@@ -196,41 +196,67 @@ class Customer extends User {
     }
     
 
-
-
-    static async bookRide(cust_id, route_id, rideDate) {
+    static async bookRide(cust_id, route_id, rideDate, origin, destination) {
+        console.log('Origin:', origin);
+        console.log('Destination:', destination);
         try {
-          const routeQuery = 'SELECT transporter_id FROM route WHERE route_id = ?';
-          const [routeResult] = await db.query(routeQuery, [route_id]);
-          if (routeResult.length === 0) {
-            throw new Error('Invalid route_id selected.');
-          }
-          const transporterId = routeResult[0].transporter_id;
+            const routeQuery = 'SELECT transporter_id FROM route WHERE route_id = ?';
+            const [routeResult] = await db.query(routeQuery, [route_id]);
+            if (routeResult.length === 0) {
+                throw new Error('Invalid route_id selected.');
+            }
+            const transporterId = routeResult[0].transporter_id;
     
-          const vehicleQuery = 'SELECT vehicle_id FROM vehicle WHERE transporter_id = ?';
-          const [vehicleResult] = await db.query(vehicleQuery, [transporterId]);
-          if (vehicleResult.length === 0) {
-            throw new Error('No vehicle found for the selected transporter.');
-          }
-          const vehicleId = vehicleResult[0].vehicle_id;
+            const vehicleQuery = `
+                SELECT vehicle_id, current_capacity, initial_capacity 
+                FROM vehicle 
+                WHERE transporter_id = ?
+            `;
+            const [vehicleResult] = await db.query(vehicleQuery, [transporterId]);
+            if (vehicleResult.length === 0) {
+                throw new Error('No vehicle found for the selected transporter.');
+            }
     
-          const bookingQuery = `
-            INSERT INTO bookings (cust_id, vehicle_id, route_id, transporter_id, ride_date)
-            VALUES (?, ?, ?, ?, ?)
-          `;
-          const [bookingResult] = await db.query(bookingQuery, [
-            cust_id,
-            vehicleId,
-            route_id,
-            transporterId,
-            rideDate,
-          ]);
-          db.query('UPDATE customer SET loyalty_points = loyalty_points + 5 WHERE cust_id = ?', cust_id);
-          console.log('Booking successful! Booking ID:', bookingResult.insertId);
-          return bookingResult;
+            const { vehicle_id, current_capacity, initial_capacity } = vehicleResult[0];
+    
+            if (current_capacity <= 0) {
+                throw new Error('No seats available for this vehicle.');
+            }
+    
+            const updateCapacityQuery = `
+                UPDATE vehicle 
+                SET current_capacity = current_capacity - 1 
+                WHERE vehicle_id = ?
+            `;
+            await db.query(updateCapacityQuery, [vehicle_id]);
+            const fare = await Customer.estimateFare(origin, destination);
+    
+            const bookingQuery = `
+                INSERT INTO bookings (customer_id, vehicle_id, route_id, transporter_id, ride_date, price)
+                VALUES (?, ?, ?, ?, ?, ?)
+            `;
+            const [bookingResult] = await db.promise().query(bookingQuery, [
+                cust_id,
+                vehicle_id,
+                route_id,
+                transporterId,
+                rideDate,
+                fare 
+            ]);
+    
+            const loyaltyQuery = 'UPDATE customer SET loyalty_points = loyalty_points + 5 WHERE cust_id = ?';
+            await db.promise().query(loyaltyQuery, [cust_id]);
+    
+            console.log(
+                `Booking successful! Booking ID: ${bookingResult.insertId}. Remaining seats: ${
+                    current_capacity - 1
+                }/${initial_capacity}. Estimated Fare: ${fare}`
+            );
+    
+            return bookingResult;
         } catch (error) {
-          console.error('Error booking ride:', error.message);
-          throw error;
+            console.error('Error booking ride:', error.message);
+            throw error;
         }
     }
 
@@ -292,7 +318,6 @@ class Customer extends User {
 
     static async submitFeedback(bookingId, comments, rating) {
         try {
-            // Mock database interaction (replace this with actual DB query)
             const result = await db.query(
                 'INSERT INTO feedback (booking_id, comments, rating) VALUES (?, ?, ?)',
                 [bookingId, comments, rating]

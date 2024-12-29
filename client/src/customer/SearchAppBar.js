@@ -4,7 +4,6 @@ import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button'
 import Card from '@mui/material/Card';
-import Cookies from 'js-cookie'
 import { CardContent } from '@mui/material';
 import {Stack} from '@mui/material'
 import {Collapse} from '@mui/material';
@@ -18,6 +17,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
 import MicIcon from '@mui/icons-material/Mic';
 import NotificationsIcon from '@mui/icons-material/Notifications';
+import SettingsIcon from '@mui/icons-material/Settings';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
@@ -32,6 +32,8 @@ import FareEstimation from './FareEstimationPopUp'
 import TrafficUpdate from './TrafficUpdatePopUp';
 import LoyaltyPoints from './LoyaltyPoints';
 import WeatherAlerts from '../notifications/WeatherAlerts';
+import { Navigate, useNavigate } from 'react-router-dom';
+import TypingEffect from './TypingEffect';
 
 
 const Search = styled('div')(({ theme }) => ({
@@ -80,19 +82,25 @@ export default function NavigationAppBar() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResult, setSearchResult] = useState('');
   const [noResult, setNoResult] = useState(false);
+  const [noSearch, setNoSearch] = useState(false);
   const [routesWithSchedules, setRoutesWithSchedules] = useState([]);
   const [isListening, setIsListening] = useState(false);
   const [anchor, setAnchor] = React.useState(null);
+  const [origin, setOrigin] = useState('');
+  const [destination, setDestination] = useState('');
   const [Modalopen, setOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedRoute, setSelectedRoute] = useState(null);
+  const [fare, setFare] = useState('')
   const [expandedRoute, setExpandedRoute] = useState(null);
   const [formData, setFormData] = useState({
       origin: ``,
       destination: ``
   })
 
-
+  const handleSettingsPageOpen = () => {
+    window.location.href = '/SettingsPage'
+  }
   const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
   recognition.continuous = false;
   recognition.interimResults = false;
@@ -176,6 +184,7 @@ export default function NavigationAppBar() {
 
   const handleKeyDown = async (e) => {
     if (e.key === 'Enter') {
+      setNoSearch(true);
       try {
         const response = await fetch(`${process.env.REACT_APP_BASE_URL}/search`, {
           method: 'POST',
@@ -228,9 +237,12 @@ export default function NavigationAppBar() {
     const selectedDate = new Date(date);
     const formattedDate = selectedDate.toISOString().split('T')[0];
     const Data = {
-      cust_id:parseInt(Cookies.get('userId'),10),
+      cust_id:parseInt(sessionStorage.getItem('userId')),
       route_id:ride.route_id,
-      rideDate:formattedDate
+      rideDate:formattedDate,
+      origin:origin,
+      destination:destination
+
     }
     console.log("Payload sent to backend:", JSON.stringify(Data));
     try{
@@ -245,9 +257,10 @@ export default function NavigationAppBar() {
       const result = response.json();
       console.log("Response status:", result.status);
       console.log("Response Body",response);
-      if(result.ok){
-        alert("This Works");
-      }
+      alert('Booking Successful!');
+      setFare(result.fare);
+      alert(fare);
+      
     }
     catch(err){
       alert("Error in booking ride");
@@ -255,7 +268,6 @@ export default function NavigationAppBar() {
 
   };
   const handleOpenModal = (route) => {
-    alert(route.stops);
     if(route?.stops){
       setSelectedRoute(route); // Set the selected route when opening the modal.
       setOpen(true);
@@ -267,14 +279,11 @@ export default function NavigationAppBar() {
 
 
   const handleConfirmBooking = () => {
-    alert("handleConfirmBooking");
     if(selectedDate<new Date()){
       alert("please select a valid date");
       console.log(selectedDate);
       return;
     }
-    alert(selectedRoute);
-    alert(selectedDate);
     if (selectedRoute) {
       handleSubmit(selectedRoute, selectedDate); // Pass date to the submission handler
       setOpen(false);
@@ -290,7 +299,7 @@ export default function NavigationAppBar() {
   };
 
   return (
-  <Box sx={{ flexGrow: 1 }}>
+    <Box sx={{ flexGrow: 1, color:'#44A1A0' }}>
     <AppBar position="static">
       <Toolbar>
         {/* Menu Icon (Drawer Trigger) */}
@@ -368,10 +377,8 @@ export default function NavigationAppBar() {
         {/* Icons on the Right */}
         <Box sx={{ display: 'flex' }}>
   
-          <IconButton size="large" aria-label="show notifications" color="inherit">
-            <Badge badgeContent={4} color="error">
-              <NotificationsIcon />
-            </Badge>
+          <IconButton size="large" aria-label="settings-page" color="inherit">
+            <SettingsIcon onClick={handleSettingsPageOpen}/>
           </IconButton>
 
           <LoyaltyPoints></LoyaltyPoints>
@@ -464,6 +471,7 @@ export default function NavigationAppBar() {
         )}
         <FareEstimation></FareEstimation>
         <TrafficUpdate></TrafficUpdate>
+        {!noSearch && <TypingEffect/>}
         <BookingModal
         Modalopen={Modalopen}
         setOpen={setOpen}
@@ -473,6 +481,10 @@ export default function NavigationAppBar() {
         formData={formData}
         setFormData={setFormData}
         selectedDate={selectedDate}
+        setOrigin={setOrigin}
+        setDestination={setDestination}
+        origin={origin}
+        destination={destination}
       />
 
   

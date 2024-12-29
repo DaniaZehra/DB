@@ -6,7 +6,7 @@ const WeatherAlerts = () => {
     useEffect(() => {
         const fetchAlerts = async () => {
             try {
-                const location = "Karachi"; 
+                const location = "Pakistan"; 
                 const response = await fetch(`http://localhost:5000/alerts?location=${location}`);
                 const data = await response.json();
 

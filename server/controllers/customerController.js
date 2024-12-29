@@ -1,7 +1,8 @@
 import Customer from '../services/customer.js';
+import User from '../services/user.js';
 
 export const registerCustomer = async (req, res) => {
-    const { username, first_name, last_name, phone_number, password, cust_email } = req.body;
+    const { username, first_name, last_name, password, cust_email} = req.body;
 
     try {
         if (!username || !password || !cust_email) {
@@ -147,15 +148,18 @@ export const deleteCustomer = async (req, res) => {
 
 export const bookRide = async (req, res) => {
     try {
-      const { cust_id, route_id, rideDate } = req.body;
-      if (!cust_id || !route_id || !rideDate) {
+      const { cust_id, route_id, rideDate, origin, destination } = req.body;
+      if (!cust_id || !route_id || !rideDate || !origin || !destination) {
         return res.status(400).json({ message: 'Missing required fields: cust_id, routeId, or rideDate.' });
       }
-      const bookingResult = await Customer.bookRide(cust_id, route_id, rideDate);
+      const bookingResult = await Customer.bookRide(cust_id, route_id, rideDate, origin, destination);
+      const Fare = await Customer.estimateFare(origin, destination);
       console.log(bookingResult);
 
-      res.status(201).json({
-        message: 'Ride booked successfully!'
+
+      res.status(200).json({
+        message: 'Ride booked successfully!',
+        fare:Fare
       });
     } catch (error) {
       console.error('Error in booking controller:', error.message);
@@ -166,6 +170,9 @@ export const bookRide = async (req, res) => {
       if (error.message.includes('No vehicle found for the selected transporter')) {
         console.log("Error here");
         return res.status(404).json({ message: 'No available vehicle for the selected route.' });
+      }
+      if(error.message.includes('No seats available for this vehicle')){
+        return res.status(404).json({message: 'No seats available for this vehicle.'})
       }
   
       // Handle general errors

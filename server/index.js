@@ -10,26 +10,13 @@ import searchRoutes from './routes/searchRoutes.js'
 import routeRoutes from './routes/routeRoutes.js';
 import vehicleRoutes from './routes/vehicleRoutes.js'
 import customerRoutes from './routes/customerRoutes.js';
-import WeatherApiService from './services/notificationsWeather.js';
+import captchaRoutes from './routes/captchaRoutes.js'
 import TransportRoutes from './routes/transporterRoutes.js';
 import adminRoutes from './routes/adminRoutes.js'
 
 import dotenv from 'dotenv';
 dotenv.config();
 
-
-// // Test function
-// async function testStartWeatherAlertScheduler() {
-//   console.log('Starting Scheduler Test...');
-//   startWeatherAlertScheduler();
-
-//   // Allow some time for the scheduler to trigger the service
-//   await new Promise((resolve) => setTimeout(resolve, 2000));
-
-//   console.log('If you see "Weather Alert Service Called" in the output, the test passed.');
-// }
-
-// testStartWeatherAlertScheduler();
 
 const app = express();
 const server = createServer(app);
@@ -50,6 +37,7 @@ app.use('/transporter',TransportRoutes);
 app.use('/admin', adminRoutes);
 app.use('/vehicle',vehicleRoutes);
 app.use("/alerts", NotificationRoutes);
+app.use('/captcha',captchaRoutes)
 
 
 io.on('connection', (socket) => {

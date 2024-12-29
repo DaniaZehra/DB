@@ -13,6 +13,7 @@ export const login = async (req, res) => {
         return res.status(400).json({ message: 'Username and password are required' });
     }
 
+
     try {
         let user;
         let userType;
@@ -62,24 +63,24 @@ export const login = async (req, res) => {
         // Set cookies
         const cookieOptions = {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production', // Set `false` for development
+            secure: process.env.NODE_ENV === 'production', 
             sameSite: 'None',
         };
 
         res.cookie('accessToken', accessToken, {
             ...cookieOptions,
-            maxAge: parseInt(process.env.JWT_EXPIRATION) * 1000, // Expiry in ms
+            maxAge: parseInt(process.env.JWT_EXPIRATION) * 1000,
         });
 
         res.cookie('refreshToken', refreshToken, {
             ...cookieOptions,
-            maxAge: parseInt(process.env.REFRESH_TOKEN_EXPIRATION) * 1000, // Expiry in ms
+            maxAge: parseInt(process.env.REFRESH_TOKEN_EXPIRATION) * 1000, 
         });
 
-        res.cookie('userType', userType, { httpOnly: false });
-        res.cookie('userId', userId, { httpOnly: false });
-
-        res.status(200).json({ message: 'Login Successful' });
+        res.status(200).json({ message: 'Login Successful',
+            userType,
+            userId
+         });
     } catch (err) {
         console.error('Error during login:', err);
         res.status(500).json({ error: 'Login failed' });

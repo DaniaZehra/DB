@@ -1,5 +1,10 @@
+import { resourceLimits } from 'worker_threads';
 import db from '../config/database.js';
 import crypto from 'crypto';
+import dotenv from 'dotenv';
+import nodemailer from 'nodemailer';
+dotenv.config();
+
 
 export default class Admin {
     static async createAdmin(username, password) {
@@ -99,6 +104,51 @@ export default class Admin {
             throw error;
         }
     }
+
+    static async getAdminActivity(){
+        try{
+            const [result] = await db.query('select * from admin_activity_log');
+            return result; 
+        }catch(error){
+            console.error(error.message);
+            throw error;
+        }
+    }
+
+    // static async generateOTP() {
+    //     return Math.floor(100000 + Math.random() * 900000).toString();
+    // }
+
+    // static async sendOTPEmail(email, otp){
+    //     console.log('Email User:', process.env.EMAIL_USER);
+    //     console.log('Email Pass:', process.env.EMAIL_PASS);
+
+    //     const transporter = nodemailer.createTransport({
+    //         service: 'gmail',
+    //         auth: {
+    //             user: process.env.EMAIL_USER,
+    //             pass: process.env.EMAIL_PASS,
+    //         }
+    //     })
+
+    //     transporter.verify((error, success) => {
+    //         if (error) {
+    //             console.error('Transporter configuration error:', error);
+    //         } else {
+    //             console.log('Transporter is ready to send emails');
+    //         }
+    //     });
+
+    //     const mailOptions = {
+    //         from: process.env.EMAIL_USER,
+    //         to: email,
+    //         subject: 'OTP Code',
+    //         text: `OTP code: ${otp} It will expire in 5 minutes`
+    //     };
+
+    //     await transporter.sendMail(mailOptions);
+        
+    // }
 
     static async deleteAdmin(adminUsername) {
         try {

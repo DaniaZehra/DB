@@ -2,13 +2,12 @@ import React, { useState } from 'react';
 import { Button,
     Container, Card, CardContent, CircularProgress,
     Typography } from '@mui/material';
-import Cookies from 'js-cookie';
 
 const DisplayPastBookings = () => {
     const [bookings1, setBookings1] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const cust_id = parseInt(Cookies.get("userId"));
+    const cust_id = sessionStorage.getItem('userId');
     const handleFetchBookings = async (e) => {
         setLoading(true);
         setError('');
